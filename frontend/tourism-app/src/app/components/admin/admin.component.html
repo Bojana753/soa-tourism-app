@@ -1,51 +1,58 @@
-<div style="min-height:100vh; background:#f0f4f8">
-  <nav style="background:linear-gradient(135deg, #667eea, #764ba2); padding:16px 32px; display:flex; justify-content:space-between; align-items:center">
-    <span style="color:white; font-size:20px; font-weight:700">🗺️ TourismApp — Admin</span>
-    <a routerLink="/login" style="color:white; font-size:14px">Logout</a>
+<div class="admin-page">
+
+  <nav class="top-nav">
+    <a routerLink="/" class="logo">✈ Traavellio</a>
+    <div class="nav-right">
+      <span class="admin-badge">ADMIN</span>
+      <a routerLink="/login" class="nav-logout">Logout →</a>
+    </div>
   </nav>
 
-  <div style="max-width:900px; margin:40px auto; padding:0 16px">
-    <div style="background:white; border-radius:16px; padding:32px; box-shadow:0 4px 20px rgba(0,0,0,0.08)">
-      <h2 style="margin-bottom:24px">👥 Users</h2>
-      <table style="width:100%; border-collapse:collapse">
+  <div class="admin-wrapper">
+    <div class="page-header">
+      <div class="section-label">MANAGEMENT</div>
+      <h1 class="page-title">Traveler <span>Directory</span></h1>
+      <p class="page-sub">{{ users.length }} registered users</p>
+    </div>
+
+    <div class="table-card">
+      <table class="users-table">
         <thead>
-          <tr style="background:#f8f9fa">
-            <th style="padding:14px 16px; text-align:left; font-size:13px; color:#888; font-weight:600; border-bottom:2px solid #f0f0f0">USERNAME</th>
-            <th style="padding:14px 16px; text-align:left; font-size:13px; color:#888; font-weight:600; border-bottom:2px solid #f0f0f0">EMAIL</th>
-            <th style="padding:14px 16px; text-align:left; font-size:13px; color:#888; font-weight:600; border-bottom:2px solid #f0f0f0">ROLE</th>
-            <th style="padding:14px 16px; text-align:left; font-size:13px; color:#888; font-weight:600; border-bottom:2px solid #f0f0f0">STATUS</th>
-            <th style="padding:14px 16px; text-align:left; font-size:13px; color:#888; font-weight:600; border-bottom:2px solid #f0f0f0">ACTION</th>
+          <tr>
+            <th>USERNAME</th>
+            <th>EMAIL</th>
+            <th>ROLE</th>
+            <th>STATUS</th>
+            <th>ACTION</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let user of users" style="border-bottom:1px solid #f5f5f5">
-            <td style="padding:14px 16px; font-weight:500">{{ user.username }}</td>
-            <td style="padding:14px 16px; color:#666">{{ user.email }}</td>
-            <td style="padding:14px 16px">
-              <span [style.background]="user.role === 'admin' ? '#fef3cd' : '#e8f4fd'"
-                    [style.color]="user.role === 'admin' ? '#856404' : '#3498db'"
-                    style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600">
+          <tr *ngFor="let user of users">
+            <td class="col-username">{{ user.username }}</td>
+            <td class="col-email">{{ user.email }}</td>
+            <td>
+              <span class="badge" [ngClass]="user.role === 'admin' ? 'badge-admin' : 'badge-user'">
                 {{ user.role }}
               </span>
             </td>
-            <td style="padding:14px 16px">
-              <span [style.background]="user.isBlocked ? '#fde8e8' : '#e8fdf0'"
-                    [style.color]="user.isBlocked ? '#e53e3e' : '#27ae60'"
-                    style="padding:4px 10px; border-radius:20px; font-size:12px; font-weight:600">
+            <td>
+              <span class="badge" [ngClass]="user.isBlocked ? 'badge-blocked' : 'badge-active'">
                 {{ user.isBlocked ? 'Blocked' : 'Active' }}
               </span>
             </td>
-            <td style="padding:14px 16px">
-              <button *ngIf="!user.isBlocked && user.role !== 'admin'" (click)="block(user.ID)"
-                style="background:#e53e3e; color:white; padding:6px 14px; font-size:13px">
+            <td>
+              <button
+                *ngIf="!user.isBlocked && user.role !== 'admin'"
+                (click)="block(user.ID)"
+                class="btn-block">
                 Block
               </button>
-              <span *ngIf="user.isBlocked" style="color:#aaa; font-size:13px">—</span>
-              <span *ngIf="user.role === 'admin'" style="color:#aaa; font-size:13px">—</span>
+              <span *ngIf="user.isBlocked || user.role === 'admin'" class="no-action">—</span>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
   </div>
+
 </div>

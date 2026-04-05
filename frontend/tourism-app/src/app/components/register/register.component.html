@@ -1,29 +1,60 @@
-<div style="min-height:100vh; background:linear-gradient(135deg, #11998e 0%, #38ef7d 100%); display:flex; align-items:center; justify-content:center">
-  <div style="background:white; padding:40px; border-radius:16px; width:100%; max-width:400px; box-shadow:0 20px 60px rgba(0,0,0,0.2)">
-    <div style="text-align:center; margin-bottom:30px">
-      <div style="font-size:48px">✈️</div>
-      <h2 style="font-size:28px; margin-top:10px">Create Account</h2>
-      <p style="color:#888; margin-top:4px">Join TourismApp today</p>
+<div class="register-page">
+  <nav class="register-nav">
+    <a routerLink="/" class="logo">✈ Traavellio</a>
+  </nav>
+
+  <div class="register-wrapper">
+    <div class="register-image">
+      <img src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=80" alt="Travel" />
+      <div class="image-overlay">
+        <div class="image-label">START YOUR JOURNEY</div>
+        <h2>The world is waiting<br><em>for you</em></h2>
+      </div>
     </div>
-    <div *ngIf="error" style="background:#fee; border:1px solid #fcc; color:#c00; padding:10px 14px; border-radius:6px; margin-bottom:16px; font-size:14px">
-      {{ error }}
+
+    <div class="register-card">
+      <div class="card-label">NEW TRAVELER</div>
+      <h1 class="card-title">Create your<br><span>account</span></h1>
+      <p class="card-sub">Join thousands of travelers exploring the world.</p>
+
+      <div *ngIf="error" class="error-box">{{ error }}</div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <input [(ngModel)]="username" type="text" placeholder="Choose a username" />
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input [(ngModel)]="email" type="email" placeholder="your@email.com" />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input [(ngModel)]="password" type="password" placeholder="••••••••" />
+      </div>
+
+      <div class="form-group">
+        <label>I am a</label>
+        <div class="role-selector">
+          <div class="role-option" [class.active]="role === 'tourist'" (click)="role='tourist'">
+            <span class="role-icon">🧳</span>
+            <span>Tourist</span>
+          </div>
+          <div class="role-option" [class.active]="role === 'guide'" (click)="role='guide'">
+            <span class="role-icon">🗺️</span>
+            <span>Guide</span>
+          </div>
+        </div>
+      </div>
+
+      <button (click)="register()" class="btn-register">
+        Create Account <span class="arrow">→</span>
+      </button>
+
+      <p class="login-link">
+        Already a traveler? <a routerLink="/login">Sign in</a>
+      </p>
     </div>
-    <label>Username</label>
-    <input [(ngModel)]="username" placeholder="Choose a username">
-    <label>Email</label>
-    <input [(ngModel)]="email" placeholder="Enter your email">
-    <label>Password</label>
-    <input type="password" [(ngModel)]="password" placeholder="Choose a password">
-    <label>Role</label>
-    <select [(ngModel)]="role">
-      <option value="tourist">🧳 Tourist</option>
-      <option value="guide">🗺️ Guide</option>
-    </select>
-    <button (click)="register()" style="width:100%; background:linear-gradient(135deg, #11998e, #38ef7d); color:white; margin-top:8px; padding:12px">
-      Register
-    </button>
-    <p style="text-align:center; margin-top:16px; color:#888; font-size:14px">
-      Already have an account? <a routerLink="/login">Login</a>
-    </p>
   </div>
 </div>

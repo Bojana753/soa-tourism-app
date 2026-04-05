@@ -1,66 +1,85 @@
-<div style="min-height:100vh; background:#f0f4f8">
-  <nav style="background:linear-gradient(135deg, #667eea, #764ba2); padding:16px 32px; display:flex; justify-content:space-between; align-items:center">
-    <span style="color:white; font-size:20px; font-weight:700">🗺️ TourismApp</span>
-    <a routerLink="/login" style="color:white; font-size:14px">Logout</a>
+<div class="profile-page">
+
+  <nav class="top-nav">
+    <a routerLink="/" class="logo">✈ Traavellio</a>
+    <div class="nav-links">
+      <a routerLink="/login" class="nav-logout">Logout →</a>
+    </div>
   </nav>
 
-  <div style="max-width:600px; margin:40px auto; padding:0 16px">
-    <div *ngIf="message" style="position:fixed; top:20px; right:20px; background:#27ae60; color:white; padding:14px 24px; border-radius:8px; box-shadow:0 4px 12px rgba(0,0,0,0.2); z-index:1000; font-weight:600">
-      ✓ {{ message }}
-    </div>
+  <div class="profile-wrapper">
 
-    <div style="background:white; border-radius:16px; padding:40px; box-shadow:0 4px 20px rgba(0,0,0,0.08)">
-      <div *ngIf="!editing">
-        <div style="text-align:center; margin-bottom:30px">
-          <img *ngIf="user.imageUrl" [src]="user.imageUrl" style="width:120px; height:120px; border-radius:50%; object-fit:cover; border:4px solid #667eea">
-          <div *ngIf="!user.imageUrl" style="width:120px; height:120px; border-radius:50%; background:linear-gradient(135deg, #667eea, #764ba2); margin:0 auto; display:flex; align-items:center; justify-content:center; color:white; font-size:48px">
-            👤
-          </div>
-          <h2 style="margin-top:16px">{{ user.username }}</h2>
-          <span style="background:#e8f4fd; color:#3498db; padding:4px 12px; border-radius:20px; font-size:13px; font-weight:600">{{ user.role }}</span>
-        </div>
+    <div *ngIf="message" class="toast">✓ {{ message }}</div>
 
-        <div style="border-top:1px solid #f0f0f0; padding-top:20px">
-          <div style="display:flex; margin-bottom:16px">
-            <span style="color:#888; width:120px; font-size:14px">Email</span>
-            <span style="font-weight:500">{{ user.email }}</span>
-          </div>
-          <div style="display:flex; margin-bottom:16px">
-            <span style="color:#888; width:120px; font-size:14px">Full name</span>
-            <span style="font-weight:500">{{ user.firstName }} {{ user.lastName }}</span>
-          </div>
-          <div style="display:flex; margin-bottom:16px">
-            <span style="color:#888; width:120px; font-size:14px">Bio</span>
-            <span style="font-weight:500">{{ user.bio || '—' }}</span>
-          </div>
-          <div style="display:flex; margin-bottom:24px">
-            <span style="color:#888; width:120px; font-size:14px">Motto</span>
-            <span style="font-weight:500; font-style:italic">"{{ user.motto || '—' }}"</span>
+    <!-- VIEW MODE -->
+    <div *ngIf="!editing" class="profile-layout">
+      <div class="profile-sidebar">
+        <div class="avatar-wrap">
+          <img *ngIf="user.imageUrl" [src]="user.imageUrl" class="avatar-img" />
+          <div *ngIf="!user.imageUrl" class="avatar-placeholder">
+            {{ user.username?.charAt(0)?.toUpperCase() }}
           </div>
         </div>
-
-        <button (click)="editing=true" style="background:linear-gradient(135deg, #667eea, #764ba2); color:white; width:100%">
-          ✏️ Edit Profile
-        </button>
+        <div class="sidebar-name">{{ user.username }}</div>
+        <div class="sidebar-role">{{ user.role }}</div>
+        <button (click)="editing=true" class="btn-edit">Edit Profile →</button>
       </div>
 
-      <div *ngIf="editing">
-        <h2 style="margin-bottom:24px">Edit Profile</h2>
-        <label>First name</label>
-        <input [(ngModel)]="user.firstName" placeholder="Your first name">
-        <label>Last name</label>
-        <input [(ngModel)]="user.lastName" placeholder="Your last name">
+      <div class="profile-details">
+        <div class="section-label">TRAVELER PROFILE</div>
+        <h2 class="section-title">{{ user.firstName }} {{ user.lastName }}</h2>
+
+        <div class="detail-row">
+          <span class="detail-key">Email</span>
+          <span class="detail-val">{{ user.email }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Bio</span>
+          <span class="detail-val">{{ user.bio || '—' }}</span>
+        </div>
+        <div class="detail-row">
+          <span class="detail-key">Motto</span>
+          <span class="detail-val motto">"{{ user.motto || '—' }}"</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- EDIT MODE -->
+    <div *ngIf="editing" class="edit-card">
+      <div class="card-label">EDIT PROFILE</div>
+      <h2 class="edit-title">Update your <span>details</span></h2>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>First Name</label>
+          <input [(ngModel)]="user.firstName" placeholder="Your first name" />
+        </div>
+        <div class="form-group">
+          <label>Last Name</label>
+          <input [(ngModel)]="user.lastName" placeholder="Your last name" />
+        </div>
+      </div>
+
+      <div class="form-group">
         <label>Bio</label>
         <textarea [(ngModel)]="user.bio" placeholder="Tell us about yourself" rows="3"></textarea>
+      </div>
+
+      <div class="form-group">
         <label>Motto</label>
-        <input [(ngModel)]="user.motto" placeholder="Your personal motto">
-        <label>Profile image URL</label>
-        <input [(ngModel)]="user.imageUrl" placeholder="https://...">
-        <div style="display:flex; gap:12px; margin-top:8px">
-          <button (click)="save()" style="flex:1; background:linear-gradient(135deg, #11998e, #38ef7d); color:white">Save</button>
-          <button (click)="editing=false" style="flex:1; background:#e0e0e0; color:#333">Cancel</button>
-        </div>
+        <input [(ngModel)]="user.motto" placeholder="Your personal motto" />
+      </div>
+
+      <div class="form-group">
+        <label>Profile Image URL</label>
+        <input [(ngModel)]="user.imageUrl" placeholder="https://..." />
+      </div>
+
+      <div class="edit-actions">
+        <button (click)="save()" class="btn-save">Save Changes →</button>
+        <button (click)="editing=false" class="btn-cancel">Cancel</button>
       </div>
     </div>
+
   </div>
 </div>
