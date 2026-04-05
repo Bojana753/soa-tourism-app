@@ -13,7 +13,7 @@ import (
 func GetAllUsers(w http.ResponseWriter, r *http.Request) {
 	role := r.Context().Value(middleware.UserRoleKey)
 	if role != string(model.RoleAdmin) {
-		http.Error(w, "Just admin", http.StatusForbidden)
+		http.Error(w, "Admins only", http.StatusForbidden)
 		return
 	}
 	var users []model.User
