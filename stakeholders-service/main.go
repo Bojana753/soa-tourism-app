@@ -31,7 +31,6 @@ func main() {
 
 	r.HandleFunc("/auth/register", handler.Register).Methods("POST", "OPTIONS")
 	r.HandleFunc("/auth/login", handler.Login).Methods("POST", "OPTIONS")
-	r.HandleFunc("/auth/create-admin", handler.CreateAdmin).Methods("POST", "OPTIONS")
 
 	api := r.PathPrefix("/").Subrouter()
 	api.Use(middleware.JWTMiddleware)

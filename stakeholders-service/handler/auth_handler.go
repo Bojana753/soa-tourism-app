@@ -75,17 +75,3 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]string{"token": tokenStr})
 }
-
-
-func CreateAdmin(w http.ResponseWriter, r *http.Request) {
-    hashed, _ := bcrypt.GenerateFromPassword([]byte("admin123"), bcrypt.DefaultCost)
-    user := model.User{
-        Username: "admin",
-        Password: string(hashed),
-        Email:    "admin@test.com",
-        Role:     model.RoleAdmin,
-    }
-    db.DB.Create(&user)
-    w.WriteHeader(http.StatusCreated)
-    json.NewEncoder(w).Encode(map[string]string{"message": "Admin created"})
-}
