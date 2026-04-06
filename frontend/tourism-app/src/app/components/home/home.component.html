@@ -62,18 +62,26 @@
 </section>
 
 <section class="why-us">
-  <div class="why-bg">
-    <img src="https://images.unsplash.com/photo-1531366936337-7c912a4589a7?w=1800&q=80" alt="Aurora" />
-    <div class="why-overlay"></div>
-  </div>
   <div class="why-inner">
     <div class="section-label" style="color:#c9a96e">✦ Why Travel With Us</div>
     <h2 class="section-title" style="color:#f0ece4">Book with confidence,<br><em>travel with peace of mind</em></h2>
-    <div class="why-grid">
-      <div class="why-card" *ngFor="let w of whyUs">
-        <div class="why-icon">{{ w.icon }}</div>
-        <h4>{{ w.title }}</h4>
-        <p>{{ w.desc }}</p>
+    <div class="why-flex">
+      <div class="why-image">
+        <img [src]="activeImage" alt="preview" />
+      </div>
+      <div class="why-list">
+        <div
+          class="why-item"
+          *ngFor="let w of whyUs; let i = index"
+          (mouseenter)="setActive(i)"
+          [class.active]="i === activeIndex"
+        >
+          <div class="why-icon">{{ w.icon }}</div>
+          <div>
+            <h4>{{ w.title }}</h4>
+            <p>{{ w.desc }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -100,6 +108,17 @@
     <h2>Turn Your Travel Dreams<br><em>Into Reality</em></h2>
     <p>From the first idea to the final detail, we design journeys you'll remember forever.</p>
     <a routerLink="/register" class="hero-btn">Book a Trip ↗</a>
+  </div>
+  <div class="cta-marquee">
+    <div class="marquee-track">
+      <div class="marquee-content">
+        🗺️ Guided Tours • 📍 Key Checkpoints • ✍️ Travel Blogs • 🧭 Route Planning • ⭐ Tour Reviews • 👥 Follow Travelers • 🛒 Book a Tour • 🏔️ Curated Experiences •&nbsp;
+        🗺️ Guided Tours • 📍 Key Checkpoints • ✍️ Travel Blogs • 🧭 Route Planning • ⭐ Tour Reviews • 👥 Follow Travelers • 🛒 Book a Tour • 🏔️ Curated Experiences •&nbsp;
+      </div>
+      <div class="marquee-content">
+        🗺️ Guided Tours • 📍 Key Checkpoints • ✍️ Travel Blogs • 🧭 Route Planning • ⭐ Tour Reviews • 👥 Follow Travelers • 🛒 Book a Tour • 🏔️ Curated Experiences •&nbsp;
+      </div>
+    </div>
   </div>
 </section>
 
@@ -131,7 +150,5 @@
     </div>
   </div>
   <div class="footer-bottom">
-    <span>✈️ Custom Tours &bull; 🌍 Worldwide Destinations &bull; 🏝️ Luxury &amp; Budget Travel &bull; 🧳 Visa Assistance</span>
-    <span>© 2026 Traavellio. All rights reserved.</span>
   </div>
 </footer>

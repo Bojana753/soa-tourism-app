@@ -3,6 +3,16 @@
 app-home { display: block; }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+:host {
+  display: block;
+  width: 100%;
+}
+
+app-home {
+  display: block;
+  width: 100%;
+}
+
 :root {
   --gold: #c9a96e;
   --dark: #0d0d0d;
@@ -68,6 +78,8 @@ app-home { display: block; }
   text-decoration: none;
   letter-spacing: .5px;
   transition: color .3s;
+  outline: none;
+  border: none;
 }
 
 .navbar.scrolled .logo { color: #111; }
@@ -80,6 +92,7 @@ app-home { display: block; }
   text-decoration: none;
   letter-spacing: .5px;
   transition: color .3s;
+  outline: none;
 }
 
 .navbar.scrolled .nav-link { color: #555; }
@@ -96,6 +109,7 @@ app-home { display: block; }
   text-decoration: none;
   border-radius: 100px;
   transition: background .3s;
+  outline: none;
 }
 
 .navbar.scrolled .nav-cta { background: #111; color: #fff; }
@@ -105,6 +119,7 @@ app-home { display: block; }
   position: relative;
   height: 100vh;
   min-height: 700px;
+  width: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -129,11 +144,6 @@ app-home { display: block; }
   50%  { transform: scale(1.12) translateX(10px) translateY(-20px); }
   75%  { transform: scale(1.06) translateX(-10px) translateY(10px); }
   100% { transform: scale(1.0) translateX(20px) translateY(0px); }
-}
-
-@keyframes zoom-in {
-  from { transform: scale(1.1); }
-  to   { transform: scale(1); }
 }
 
 .hero-overlay {
@@ -237,11 +247,20 @@ app-home { display: block; }
   background: #fff;
   display: flex;
   gap: 80px;
-  align-items: center;
-  padding: 100px 80px;
+  align-items: stretch;
+  padding: 0 0 0 80px;
+  width: 100%;
+  overflow: hidden;
+  min-height: 100vh;
 }
 
-.about-text { flex: 1; }
+.about-text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 80px 0;
+}
 
 .about-desc {
   font: 300 15px/1.8 var(--sans);
@@ -264,16 +283,19 @@ app-home { display: block; }
 .btn-outline:hover { color: var(--gold); border-color: var(--gold); }
 
 .about-image {
-  flex: 1;
-  height: 420px;
+  flex: 1 1 55%;
+  min-width: 0;
   overflow: hidden;
-  border-radius: 4px;
+  border-radius: 0;
+  align-self: stretch;
 }
 
 .about-image img {
-  width: 100%; height: 100%;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
   transition: transform .7s ease;
+  display: block;
 }
 
 .about-image:hover img { transform: scale(1.04); }
@@ -281,6 +303,7 @@ app-home { display: block; }
 .experiences {
   background: #f7f5f2;
   padding: 100px 80px;
+  width: 100%;
 }
 
 .exp-header { margin-bottom: 48px; }
@@ -362,6 +385,7 @@ app-home { display: block; }
 .destinations {
   background: #fff;
   padding: 100px 80px;
+  width: 100%;
 }
 
 .dest-tabs {
@@ -430,6 +454,7 @@ app-home { display: block; }
 .packages {
   background: #f7f5f2;
   padding: 100px 80px;
+  width: 100%;
 }
 
 .pkg-grid {
@@ -494,46 +519,101 @@ app-home { display: block; }
 }
 
 .why-us {
+  padding: 80px 8%;
+  background: #0f172a;
+  width: 100%;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.why-inner {
   position: relative;
-  padding: 120px 80px;
-  overflow: hidden;
+  z-index: 2;
+  width: 100%;
 }
 
-.why-bg { position: absolute; inset: 0; }
-.why-bg img { width: 100%; height: 100%; object-fit: cover; }
-.why-overlay { position: absolute; inset: 0; background: rgba(10,10,10,.8); }
-
-.why-inner { position: relative; z-index: 2; }
-
-.why-grid {
+.why-flex {
   display: grid;
-  grid-template-columns: repeat(4,1fr);
-  gap: 32px;
-  margin-top: 56px;
+  grid-template-columns: 1.2fr 1fr;
+  gap: 50px;
+  align-items: center;
+  margin-top: 40px;
 }
 
-.why-card {
-  border-left: 1px solid rgba(255,255,255,.1);
-  padding-left: 24px;
+.why-image {
+  height: 520px;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.5);
 }
 
-.why-icon { font-size: 22px; color: var(--gold); margin-bottom: 16px; }
+.why-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  animation: fadeImg 0.4s ease;
+}
 
-.why-card h4 {
-  font: 400 20px/1.2 var(--serif);
+.why-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.why-item {
+  display: flex;
+  gap: 14px;
+  padding: 18px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+  background: rgba(255,255,255,0.05);
+  align-items: flex-start;
+}
+
+.why-item:hover {
+  transform: translateX(6px);
+  background: rgba(255,255,255,0.12);
+}
+
+.why-item.active {
+  background: rgba(255,255,255,0.18);
+}
+
+.why-item .why-icon {
+  font-size: 22px;
+  color: var(--gold);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.why-item h4 {
+  font: 400 18px/1.2 var(--serif);
   color: #fff;
-  margin-bottom: 10px;
+  margin-bottom: 6px;
 }
 
-.why-card p {
-  font: 300 13px/1.7 var(--sans);
-  color: rgba(255,255,255,.5);
+.why-item p {
+  font: 300 13px/1.6 var(--sans);
+  color: rgba(255,255,255,0.6);
+}
+
+@keyframes fadeImg {
+  from { opacity: 0.4; transform: scale(1.02); }
+  to   { opacity: 1;   transform: scale(1); }
 }
 
 .testimonials {
   background: #fff;
   padding: 100px 80px;
   text-align: center;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
 }
 
 .stars {
@@ -582,11 +662,39 @@ app-home { display: block; }
 
 .cta-banner {
   position: relative;
-  height: 500px;
+  height: 100vh;
+  width: 100%;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+}
+
+.cta-marquee {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+  overflow: hidden;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(4px);
+  padding: 14px 0;
+  border-top: 1px solid rgba(255,255,255,0.1);
+}
+
+.cta-marquee .marquee-track {
+  display: flex;
+  width: max-content;
+  animation: scroll 25s linear infinite;
+}
+
+.cta-marquee .marquee-content {
+  white-space: nowrap;
+  font: 400 14px/1 var(--sans);
+  color: rgba(255,255,255,0.85);
+  letter-spacing: 0.5px;
 }
 
 .cta-bg-img {
@@ -626,6 +734,7 @@ app-home { display: block; }
 .footer {
   background: #0d0d0d;
   padding: 72px 80px 32px;
+  width: 100%;
 }
 
 .footer-top {
@@ -683,16 +792,20 @@ app-home { display: block; }
 
 @media (max-width: 1100px) {
   .pkg-grid { grid-template-columns: repeat(2,1fr); }
-  .why-grid { grid-template-columns: repeat(2,1fr); }
+  .why-flex { grid-template-columns: 1fr; }
+  .why-image { height: 300px; }
 }
 
 @media (max-width: 900px) {
   .navbar, .navbar.scrolled { padding: 18px 24px; }
   .nav-links { display: none; }
-  .about-strip { flex-direction: column; padding: 72px 24px; }
-  .about-image { max-width: 100%; width: 100%; height: 300px; flex: unset; }
-  .experiences, .destinations, .packages, .testimonials { padding: 72px 24px; }
+  .about-strip { flex-direction: column; padding: 72px 24px; min-height: unset; }
+  .about-text { padding: 0; }
+  .about-image { min-height: 300px; flex: unset; width: 100%; }
+  .experiences, .destinations, .packages { padding: 72px 24px; }
+  .testimonials { padding: 72px 24px; min-height: unset; }
   .why-us { padding: 72px 24px; }
+  .cta-banner { height: 500px; }
   .exp-grid { grid-template-columns: 1fr; height: auto; }
   .exp-large { height: 280px; }
   .exp-col { height: auto; }
@@ -704,4 +817,32 @@ app-home { display: block; }
   .footer { padding: 48px 24px 24px; }
   .footer-top { flex-direction: column; }
   .footer-cols { gap: 32px; }
+}
+
+.marquee {
+  overflow: hidden;
+  width: 100%;
+  position: relative;
+}
+
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: scroll 20s linear infinite;
+}
+
+.marquee-content {
+  white-space: nowrap;
+  padding-right: 50px;
+  font-size: 14px;
+  color: #aaa;
+}
+
+@keyframes scroll {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }

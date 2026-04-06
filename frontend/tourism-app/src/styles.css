@@ -4,9 +4,14 @@
   box-sizing: border-box;
 }
 
+html, body {
+  width: 100%;
+  overflow-x: hidden;
+}
+
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-  background: #f0f4f8;
+  background: #fff;
   color: #333;
 }
 
@@ -60,4 +65,19 @@ a {
 
 a:hover {
   text-decoration: underline;
+}
+
+a:focus, a:focus-visible,
+button:focus, button:focus-visible {
+  outline: none;
+}
+
+app-root {
+  display: block;
+  width: 100%;
+}
+
+app-home {
+  display: block;
+  width: 100%;
 }

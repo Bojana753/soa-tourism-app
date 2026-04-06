@@ -12,6 +12,8 @@ export class HomeComponent implements OnInit {
   isScrolled = false;
   activeDestination = 'Japan';
   isLoggedIn = false;
+  activeImage: string = '';
+  activeIndex = 0;
 
   destinations = [
     { name: 'Japan', tagline: 'Technology, vibrant nightlife & traditions', image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1200&q=80' },
@@ -28,16 +30,22 @@ export class HomeComponent implements OnInit {
   ];
 
   whyUs = [
-    { icon: '✦', title: 'Authentic Experiences', desc: 'Trips tailored to your style and your budget.' },
-    { icon: '◈', title: 'Culinary Adventures', desc: 'Savor local cuisines with guided food tours.' },
-    { icon: '◉', title: 'Trusted Partnerships', desc: 'Handpicked hotels, guides, and local experiences.' },
-    { icon: '◎', title: 'Cultural Immersion', desc: 'Engage with local traditions and communities.' },
+    { icon: '✦', title: 'Authentic Experiences', desc: 'Trips tailored to your style and your budget.', image: 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80' },
+    { icon: '◈', title: 'Culinary Adventures', desc: 'Savor local cuisines with guided food tours.', image: 'https://images.unsplash.com/photo-1414235077428-338989a2e8c0?w=800&q=80' },
+    { icon: '◉', title: 'Trusted Partnerships', desc: 'Handpicked hotels, guides, and local experiences.', image: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800&q=80' },
+    { icon: '◎', title: 'Cultural Immersion', desc: 'Engage with local traditions and communities.', image: 'https://images.unsplash.com/photo-1533050487297-09b450131914?w=800&q=80' },
   ];
 
   constructor(private router: Router) {}
 
   ngOnInit(): void {
     this.isLoggedIn = !!localStorage.getItem('token');
+    this.activeImage = this.whyUs[0].image;
+  }
+
+  setActive(i: number) {
+    this.activeIndex = i;
+    this.activeImage = this.whyUs[i].image;
   }
 
   signOut(): void {
