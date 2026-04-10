@@ -1,0 +1,58 @@
+<div class="admin-page">
+
+  <nav class="top-nav">
+    <a routerLink="/" class="logo">✈ Traavellio</a>
+    <div class="nav-right">
+      <span class="admin-badge">ADMIN</span>
+      <a routerLink="/login" class="nav-logout">Logout →</a>
+    </div>
+  </nav>
+
+  <div class="admin-wrapper">
+    <div class="page-header">
+      <div class="section-label">MANAGEMENT</div>
+      <h1 class="page-title">Traveler <span>Directory</span></h1>
+      <p class="page-sub">{{ users.length }} registered users</p>
+    </div>
+
+    <div class="table-card">
+      <table class="users-table">
+        <thead>
+          <tr>
+            <th>USERNAME</th>
+            <th>EMAIL</th>
+            <th>ROLE</th>
+            <th>STATUS</th>
+            <th>ACTION</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let user of users">
+            <td class="col-username">{{ user.username }}</td>
+            <td class="col-email">{{ user.email }}</td>
+            <td>
+              <span class="badge" [ngClass]="user.role === 'admin' ? 'badge-admin' : 'badge-user'">
+                {{ user.role }}
+              </span>
+            </td>
+            <td>
+              <span class="badge" [ngClass]="user.isBlocked ? 'badge-blocked' : 'badge-active'">
+                {{ user.isBlocked ? 'Blocked' : 'Active' }}
+              </span>
+            </td>
+            <td>
+              <button
+                *ngIf="!user.isBlocked && user.role !== 'admin'"
+                (click)="block(user.ID)"
+                class="btn-block">
+                Block
+              </button>
+              <span *ngIf="user.isBlocked || user.role === 'admin'" class="no-action">—</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+</div>
