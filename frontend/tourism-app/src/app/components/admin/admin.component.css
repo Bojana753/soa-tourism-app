@@ -1,0 +1,209 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+.admin-page {
+  min-height: 100vh;
+  background: #0d0d0d;
+  color: #f0ece4;
+  font-family: 'DM Sans', sans-serif;
+}
+
+/* NAV */
+.top-nav {
+  padding: 24px 48px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.logo {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 22px;
+  font-weight: 600;
+  color: #f0ece4;
+  text-decoration: none;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.admin-badge {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: #0d0d0d;
+  background: #c9a96e;
+  padding: 4px 10px;
+  font-weight: 500;
+}
+
+.nav-logout {
+  font-size: 13px;
+  letter-spacing: 1px;
+  color: #888;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.nav-logout:hover { color: #c9a96e; }
+
+/* WRAPPER */
+.admin-wrapper {
+  max-width: 1100px;
+  margin: 60px auto;
+  padding: 0 32px;
+}
+
+/* HEADER */
+.page-header {
+  margin-bottom: 48px;
+}
+
+.section-label {
+  font-size: 11px;
+  letter-spacing: 3px;
+  color: #c9a96e;
+  margin-bottom: 12px;
+}
+
+.page-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 52px;
+  font-weight: 400;
+  margin-bottom: 10px;
+}
+
+.page-title span {
+  font-style: italic;
+  color: #c9a96e;
+}
+
+.page-sub {
+  font-size: 14px;
+  color: #555;
+  font-weight: 300;
+}
+
+/* TABLE */
+.table-card {
+  border: 1px solid #1a1a1a;
+  overflow: hidden;
+}
+
+.users-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.users-table thead tr {
+  border-bottom: 1px solid #1a1a1a;
+}
+
+.users-table th {
+  padding: 16px 20px;
+  font-size: 10px;
+  letter-spacing: 2.5px;
+  color: #555;
+  font-weight: 500;
+  text-align: left;
+  background: #0a0a0a;
+}
+
+.users-table tbody tr {
+  border-bottom: 1px solid #131313;
+  transition: background 0.2s;
+}
+
+.users-table tbody tr:last-child {
+  border-bottom: none;
+}
+
+.users-table tbody tr:hover {
+  background: #111;
+}
+
+.users-table td {
+  padding: 18px 20px;
+  font-size: 14px;
+}
+
+.col-username {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 17px !important;
+  font-weight: 600;
+  color: #f0ece4;
+}
+
+.col-email {
+  color: #666;
+  font-weight: 300;
+}
+
+/* BADGES */
+.badge {
+  display: inline-block;
+  padding: 4px 12px;
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.badge-admin {
+  background: rgba(201,169,110,0.15);
+  color: #c9a96e;
+  border: 1px solid rgba(201,169,110,0.3);
+}
+
+.badge-user {
+  background: rgba(240,236,228,0.06);
+  color: #888;
+  border: 1px solid #222;
+}
+
+.badge-active {
+  background: rgba(39,174,96,0.1);
+  color: #6fcf97;
+  border: 1px solid rgba(39,174,96,0.2);
+}
+
+.badge-blocked {
+  background: rgba(229,57,53,0.1);
+  color: #e57373;
+  border: 1px solid rgba(229,57,53,0.2);
+}
+
+/* ACTIONS */
+.btn-block {
+  background: transparent;
+  border: 1px solid #e57373;
+  color: #e57373;
+  padding: 6px 16px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.btn-block:hover {
+  background: rgba(229,57,53,0.1);
+}
+
+.no-action {
+  color: #333;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .top-nav { padding: 20px 24px; }
+  .admin-wrapper { padding: 0 16px; margin: 40px auto; }
+  .page-title { font-size: 36px; }
+  .users-table th, .users-table td { padding: 12px; }
+  .col-email { display: none; }
+}

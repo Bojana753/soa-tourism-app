@@ -1,0 +1,154 @@
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <a routerLink="/" class="logo">✈ Traavellio</a>
+  <div class="nav-links">
+    <a routerLink="/profile" class="nav-link">Profile</a>
+    <ng-container *ngIf="!isLoggedIn">
+      <a routerLink="/login" class="nav-cta">Sign In →</a>
+    </ng-container>
+    <ng-container *ngIf="isLoggedIn">
+      <a (click)="signOut()" class="nav-cta" style="cursor:pointer;">Sign Out →</a>
+    </ng-container>
+  </div>
+</nav>
+
+<section class="hero">
+ <div class="hero-bg">
+  <img src="assets/hero-sailboat.jpg" alt="Ocean" class="hero-img" />
+  <div class="hero-overlay"></div>
+</div>
+  <div class="float-img float-tl">
+    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?w=400&q=80" alt="Mountains" />
+  </div>
+  <div class="float-img float-tr">
+    <img src="https://images.unsplash.com/photo-1499678329028-101435549a4e?w=400&q=80" alt="Bridge" />
+  </div>
+  <div class="float-img float-bl">
+    <img src="https://images.unsplash.com/photo-1568322445389-f64ac2515020?w=400&q=80" alt="Egypt" />
+  </div>
+  <div class="float-img float-br">
+    <img src="https://images.unsplash.com/photo-1524492412937-b28074a5d7da?w=400&q=80" alt="India" />
+  </div>
+
+  <div class="hero-center">
+    <h1 class="hero-title">Experience the World,<br>Not Just the Map</h1>
+    <p class="hero-sub">Curated Journeys Designed To Be Felt, Not Rushed.</p>
+    <a routerLink="/register" class="hero-btn">Book a trip <span>↗</span></a>
+  </div>
+
+<div class="hero-stats">
+  <div class="stat-item">
+    <i data-lucide="instagram"></i> Instagram
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat-item">
+    <i data-lucide="mail"></i> Email
+  </div>
+  <div class="stat-sep"></div>
+  <div class="stat-item">
+    <i data-lucide="map-pin"></i> Location
+</div>
+  </div>
+</section>
+
+<section class="about-strip">
+  <div class="about-text">
+    <div class="section-label">✦ About Us</div>
+    <h2 class="section-title">Meaningful travel experiences,<br><em>thoughtfully crafted</em></h2>
+    <p class="about-desc">We are passionate travel experts creating unforgettable journeys beyond sightseeing. Every itinerary combines comfort, discovery, and meaningful experiences.</p>
+  </div>
+  <div class="about-image">
+    <img src="https://images.unsplash.com/photo-1501854140801-50d01698950b?w=900&q=80" alt="Nature" />
+  </div>
+</section>
+
+<section class="why-us">
+  <div class="why-inner">
+    <div class="section-label" style="color:#c9a96e">✦ Why Travel With Us</div>
+    <h2 class="section-title" style="color:#f0ece4">Book with confidence,<br><em>travel with peace of mind</em></h2>
+    <div class="why-flex">
+      <div class="why-image">
+        <img [src]="activeImage" alt="preview" />
+      </div>
+      <div class="why-list">
+        <div
+          class="why-item"
+          *ngFor="let w of whyUs; let i = index"
+          (mouseenter)="setActive(i)"
+          [class.active]="i === activeIndex"
+        >
+          <div class="why-icon">{{ w.icon }}</div>
+          <div>
+            <h4>{{ w.title }}</h4>
+            <p>{{ w.desc }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="testimonials">
+  <div class="section-label">✦ Testimonials</div>
+  <h2 class="section-title">Words From Those Who<br><em>Traveled With Us</em></h2>
+  <div class="testi-card">
+    <div class="stars">★★★★★</div>
+    <blockquote>"Traveling with this team completely changed how I see group travel. Everything was thoughtfully planned."</blockquote>
+    <div class="testi-author">
+      <img src="https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=80&h=80&fit=crop" alt="Emily" />
+      <div><strong>Emily Carter</strong><span>Solo Traveler</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta-banner">
+  <img src="https://images.unsplash.com/photo-1520250497591-112f2f40a3f4?w=1800&q=80" alt="Resort" class="cta-bg-img" />
+  <div class="cta-overlay"></div>
+  <div class="cta-inner">
+    <div class="section-label" style="color:#c9a96e">✦ Start Today</div>
+    <h2>Turn Your Travel Dreams<br><em>Into Reality</em></h2>
+    <p>From the first idea to the final detail, we design journeys you'll remember forever.</p>
+    <a routerLink="/register" class="hero-btn">Book a Trip ↗</a>
+  </div>
+  <div class="cta-marquee">
+    <div class="marquee-track">
+      <div class="marquee-content">
+        🗺️ Guided Tours • 📍 Key Checkpoints • ✍️ Travel Blogs • 🧭 Route Planning • ⭐ Tour Reviews • 👥 Follow Travelers • 🛒 Book a Tour • 🏔️ Curated Experiences •&nbsp;
+        🗺️ Guided Tours • 📍 Key Checkpoints • ✍️ Travel Blogs • 🧭 Route Planning • ⭐ Tour Reviews • 👥 Follow Travelers • 🛒 Book a Tour • 🏔️ Curated Experiences •&nbsp;
+      </div>
+      <div class="marquee-content">
+        🗺️ Guided Tours • 📍 Key Checkpoints • ✍️ Travel Blogs • 🧭 Route Planning • ⭐ Tour Reviews • 👥 Follow Travelers • 🛒 Book a Tour • 🏔️ Curated Experiences •&nbsp;
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand">
+      <span class="logo">✈ Traavellio</span>
+      <p>Curated journeys designed to be felt, not rushed.</p>
+    </div>
+    <div class="footer-cols">
+      <div class="footer-col">
+        <h5>Pages</h5>
+        <a routerLink="/">Home</a>
+        <span style="color:#333; cursor:not-allowed;">About</span>
+        <span style="color:#333; cursor:not-allowed;">Tours</span>
+        <a routerLink="/register">Book a Trip</a>
+      </div>
+      <div class="footer-col">
+        <h5>Account</h5>
+        <ng-container *ngIf="!isLoggedIn">
+          <a routerLink="/login">Sign In</a>
+          <a routerLink="/register">Register</a>
+        </ng-container>
+        <ng-container *ngIf="isLoggedIn">
+          <a (click)="signOut()" style="cursor:pointer;">Sign Out</a>
+        </ng-container>
+        <a routerLink="/profile">Profile</a>
+      </div>
+    </div>
+  </div>
+  <div class="footer-bottom">
+  </div>
+</footer>

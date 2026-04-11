@@ -1,0 +1,45 @@
+<div class="login-page">
+  <div class="bg-overlay"></div>
+
+  <nav class="login-nav">
+    <a routerLink="/" class="logo">✈ Traavellio</a>
+  </nav>
+
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="card-label">WELCOME BACK</div>
+      <h1 class="card-title">Sign in to your<br><span>journey</span></h1>
+      <p class="card-sub">Access your trips, bookings, and travel profile.</p>
+
+      <div *ngIf="error" class="error-box">
+        {{ error }}
+      </div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <input [(ngModel)]="username" type="text" placeholder="Enter your username" />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input [(ngModel)]="password" type="password" placeholder="••••••••" />
+      </div>
+
+      <button (click)="login()" class="btn-login">
+        Continue <span class="arrow">→</span>
+      </button>
+
+      <p class="register-link">
+        New traveler? <a routerLink="/register">Create an account</a>
+      </p>
+    </div>
+
+    <div class="login-image">
+      <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=800&q=80" alt="Travel" />
+      <div class="image-overlay">
+        <blockquote>"The world is a book, and those who do not travel read only one page."</blockquote>
+        <cite>— Saint Augustine</cite>
+      </div>
+    </div>
+  </div>
+</div>

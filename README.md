@@ -38,8 +38,6 @@ docker-compose up --build
 |---|---|
 | Bojana Milošević| [@Bojana753](https://github.com/Bojana753) |
 | Member 2 | @username |
-| Member 3 | @username |
-| Member 4 | @username |
 
 ## Milestones
 
