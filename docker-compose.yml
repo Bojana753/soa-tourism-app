@@ -1,0 +1,19 @@
+services:
+  blog-mongodb:
+    image: mongo:7
+    ports:
+      - "27018:27017"
+    volumes:
+      - blog_mongo_data:/data/db
+
+  blog-service:
+    build: ./blog-service
+    ports:
+      - "8082:8082"
+    environment:
+      MONGODB_URI: mongodb://blog-mongodb:27017/blogdb
+    depends_on:
+      - blog-mongodb
+
+volumes:
+  blog_mongo_data:
