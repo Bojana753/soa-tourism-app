@@ -1,0 +1,13 @@
+server:
+  port: ${SERVER_PORT:8082}
+
+spring:
+  application:
+    name: blog-service
+  data:
+    mongodb:
+      uri: ${MONGODB_URI:mongodb://localhost:27017/blogdb}
+
+logging:
+  level:
+    org.springframework.data.mongodb: INFO
