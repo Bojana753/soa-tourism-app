@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   stakeholders-service:
@@ -19,19 +19,24 @@ services:
     ports:
       - "5433:5432"
 
+  blog-mongodb:
+    image: mongo:7
+    ports:
+      - "27018:27017"
+    volumes:
+      - blog_mongo_data:/data/db
+
   blog-service:
     build: ./blog-service
     ports:
       - "8082:8082"
     environment:
-      - MONGO_URI=mongodb://blog-db:27017/blog
+      MONGODB_URI: mongodb://blog-mongodb:27017/blogdb
     depends_on:
-      - blog-db
+      - blog-mongodb
 
-  blog-db:
-    image: mongo:6
-    ports:
-      - "27017:27017"
+volumes:
+  blog_mongo_data:
 
 networks:
   default:
