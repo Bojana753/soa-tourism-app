@@ -1,0 +1,60 @@
+<div class="register-page">
+  <nav class="register-nav">
+    <a routerLink="/" class="logo">✈ Traavellio</a>
+  </nav>
+
+  <div class="register-wrapper">
+    <div class="register-image">
+      <img src="https://images.unsplash.com/photo-1503220317375-aaad61436b1b?w=800&q=80" alt="Travel" />
+      <div class="image-overlay">
+        <div class="image-label">START YOUR JOURNEY</div>
+        <h2>The world is waiting<br><em>for you</em></h2>
+      </div>
+    </div>
+
+    <div class="register-card">
+      <div class="card-label">NEW TRAVELER</div>
+      <h1 class="card-title">Create your<br><span>account</span></h1>
+      <p class="card-sub">Join thousands of travelers exploring the world.</p>
+
+      <div *ngIf="error" class="error-box">{{ error }}</div>
+
+      <div class="form-group">
+        <label>Username</label>
+        <input [(ngModel)]="username" type="text" placeholder="Choose a username" />
+      </div>
+
+      <div class="form-group">
+        <label>Email</label>
+        <input [(ngModel)]="email" type="email" placeholder="your@email.com" />
+      </div>
+
+      <div class="form-group">
+        <label>Password</label>
+        <input [(ngModel)]="password" type="password" placeholder="••••••••" />
+      </div>
+
+      <div class="form-group">
+        <label>I am a</label>
+        <div class="role-selector">
+          <div class="role-option" [class.active]="role === 'tourist'" (click)="role='tourist'">
+            <span class="role-icon">🧳</span>
+            <span>Tourist</span>
+          </div>
+          <div class="role-option" [class.active]="role === 'guide'" (click)="role='guide'">
+            <span class="role-icon">🗺️</span>
+            <span>Guide</span>
+          </div>
+        </div>
+      </div>
+
+      <button (click)="register()" class="btn-register">
+        Create Account <span class="arrow">→</span>
+      </button>
+
+      <p class="login-link">
+        Already a traveler? <a routerLink="/login">Sign in</a>
+      </p>
+    </div>
+  </div>
+</div>

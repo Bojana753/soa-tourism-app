@@ -1,4 +1,24 @@
+version: "3.8"
+
 services:
+  stakeholders-service:
+    build: ./stakeholders-service
+    ports:
+      - "8081:8081"
+    environment:
+      - DB_HOST=stakeholders-db
+    depends_on:
+      - stakeholders-db
+
+  stakeholders-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: stakeholders
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5433:5432"
+
   blog-mongodb:
     image: mongo:7
     ports:
@@ -17,3 +37,7 @@ services:
 
 volumes:
   blog_mongo_data:
+
+networks:
+  default:
+    name: soa-network
