@@ -39,4 +39,4 @@ target/
 
 # Python
 __pycache__/
-*.pyc
+*.pycpackage-lock.json
