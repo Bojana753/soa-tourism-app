@@ -6,7 +6,7 @@ spring:
     name: blog-service
   data:
     mongodb:
-      uri: ${MONGODB_URI:mongodb://localhost:27017/blogdb}
+      uri: ${MONGODB_URI:mongodb://blog-mongodb:27017/blogdb}
 
 logging:
   level:

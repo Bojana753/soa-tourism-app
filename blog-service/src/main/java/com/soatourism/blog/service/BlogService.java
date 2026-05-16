@@ -55,6 +55,11 @@ public class BlogService {
         return blogPostRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toBlogResponse);
     }
 
+    public Page<BlogResponse> listPostsByAuthors(List<String> authorUserIds, Pageable pageable) {
+        return blogPostRepository.findByAuthorUserIdInOrderByCreatedAtDesc(authorUserIds, pageable)
+                .map(this::toBlogResponse);
+    }
+
     public BlogDetailResponse getPostDetail(String blogId) {
         BlogPost post = blogPostRepository.findById(blogId)
                 .orElseThrow(() -> new NotFoundException("Blog not found."));

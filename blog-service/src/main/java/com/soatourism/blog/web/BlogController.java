@@ -21,8 +21,12 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Arrays;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/blogs")
@@ -44,6 +48,18 @@ public class BlogController {
     @GetMapping
     public Page<BlogResponse> listPosts(@PageableDefault(size = 20) Pageable pageable) {
         return blogService.listPosts(pageable);
+    }
+
+    @GetMapping("/by-authors")
+    public Page<BlogResponse> listPostsByAuthors(
+            @RequestParam List<String> authorIds,
+            @PageableDefault(size = 20) Pageable pageable) {
+        List<String> normalizedAuthorIds = authorIds.stream()
+                .flatMap(authorId -> Arrays.stream(authorId.split(",")))
+                .map(String::trim)
+                .filter(authorId -> !authorId.isBlank())
+                .toList();
+        return blogService.listPostsByAuthors(normalizedAuthorIds, pageable);
     }
 
     @GetMapping("/{blogId}")

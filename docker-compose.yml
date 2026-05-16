@@ -39,7 +39,34 @@ services:
     depends_on:
       - blog-mongodb
 
-frontend:
+  follower-neo4j:
+    image: neo4j:5-community
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      NEO4J_AUTH: neo4j/password123
+    volumes:
+      - follower_neo4j_data:/data
+      - follower_neo4j_logs:/logs
+
+  follower-service:
+    build: ./follower-service
+    ports:
+      - "8083:8083"
+    environment:
+      PORT: 8083
+      NEO4J_URL: http://follower-neo4j:7474
+      NEO4J_USER: neo4j
+      NEO4J_PASSWORD: password123
+      NEO4J_DATABASE: neo4j
+      BLOG_SERVICE_URL: http://blog-service:8082
+      JWT_SECRET: super-secret-key-123
+    depends_on:
+      - follower-neo4j
+      - blog-service
+
+  frontend:
     build: ./frontend/tourism-app
     ports:
       - "4200:80"
@@ -48,7 +75,7 @@ frontend:
       - blog-service
       - api-gateway
 
-api-gateway:
+  api-gateway:
     build: ./api-gateway
     ports:
       - "8080:8080"
@@ -58,6 +85,8 @@ api-gateway:
 
 volumes:
   blog_mongo_data:
+  follower_neo4j_data:
+  follower_neo4j_logs:
 
 networks:
   default:
