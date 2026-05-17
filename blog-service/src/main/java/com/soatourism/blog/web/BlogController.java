@@ -100,4 +100,9 @@ public class BlogController {
             @RequestHeader("X-User-Id") String userId) {
         blogService.removeLike(blogId, userId.trim());
     }
+
+    @GetMapping("/{blogId}/comments")
+public List<CommentResponse> getComments(@PathVariable String blogId) {
+    return blogService.getCommentsByBlogId(blogId);
+}
 }

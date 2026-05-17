@@ -1,0 +1,126 @@
+<div class="container">
+  <nav class="navbar" [class.scrolled]="false">
+    <a routerLink="/" class="logo">✈ Traavellio</a>
+    <div class="nav-links">
+      <a routerLink="/profile" class="nav-link">Profile</a>
+      <a routerLink="/feed" class="nav-link">Feed</a>
+      <a (click)="signOut()" class="nav-cta" style="cursor:pointer;">Sign Out →</a>
+    </div>
+  </nav>
+
+  <div class="blog-header">
+    <div class="header-label">Journal</div>
+    <div class="header-content">
+      <h1 class="page-title">Discover & share<br><span>travel stories</span></h1>
+      <p class="page-subtitle">Explore inspiring blog posts from travelers around the world — written slowly, meant to be read slowly.</p>
+      <div class="header-actions">
+        <button (click)="showNewBlogForm = !showNewBlogForm" class="btn-primary">
+          {{ showNewBlogForm ? '✕ Cancel' : '+ New Blog' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="blog-wrapper">
+    <div class="blog-content">
+
+      <div *ngIf="showNewBlogForm" class="new-blog-form">
+        <h3>Write a New Story</h3>
+        <input type="text" placeholder="Blog Title" [(ngModel)]="newBlogTitle" class="form-input"/>
+        <textarea placeholder="Your story...-" [(ngModel)]="newBlogContent" class="form-textarea"></textarea>
+        <button (click)="createBlog()" class="btn-submit">Publish Story</button>
+        <p class="error" *ngIf="error">{{ error }}</p>
+      </div>
+
+      <div class="section-label">Latest</div>
+      <h2 class="section-title">Fresh from the <span>road</span></h2>
+
+      <div *ngIf="loading" class="loading">Loading blogs...</div>
+      <div *ngIf="error && !loading" class="error-banner">{{ error }}</div>
+
+      <div *ngIf="!loading && blogs.length > 0" class="blogs-list">
+        <div *ngFor="let blog of blogs" class="blog-card">
+          <div class="blog-header-card">
+            <div class="blog-author-info">
+              <div class="author-avatar">{{ blog.authorUserId?.charAt(0) || 'U' }}</div>
+              <div class="author-details">
+                <h4 class="author-name">{{ blog.authorUserId || 'Unknown Author' }}</h4>
+                <p class="blog-date">{{ blog.createdAt | date: 'MMM d, yyyy' }}</p>
+              </div>
+              <button
+                *ngIf="blog.authorUserId?.toString() !== currentUserId?.toString()"
+                (click)="followUser(blog.authorUserId)"
+                [disabled]="blog.following"
+                class="btn-follow">
+                {{ blog.following ? '✓ Following' : '+ Follow' }}
+              </button>
+            </div>
+          </div>
+          <div class="blog-body">
+            <h2 class="blog-title">{{ blog.title }}</h2>
+            <p class="blog-excerpt">{{ blog.description | slice:0:200 }}...</p>
+          </div>
+          <div class="blog-footer">
+            <div class="blog-stats">
+              <span class="stat"><i>❤</i> {{ blog.likeCount || 0 }} Likes</span>
+              <span class="stat" (click)="loadComments(blog)" style="cursor:pointer;">
+                <i>💬</i> {{ blog.commentCount || 0 }} Comments
+              </span>
+            </div>
+            <div class="blog-actions">
+              <button
+                (click)="blog.liked ? unlikeBlog(blog.id) : likeBlog(blog.id)"
+                [class.liked]="blog.liked"
+                class="btn-action">
+                {{ blog.liked ? '❤ Liked' : '🤍 Like' }}
+              </button>
+              <button
+                *ngIf="blog.authorUserId !== currentUserId && blog.following"
+                (click)="blog.showCommentForm = !blog.showCommentForm"
+                class="btn-action">
+                💬 Comment
+              </button>
+              <button *ngIf="blog.authorUserId === currentUserId"
+                (click)="deleteBlog(blog.id)"
+                class="btn-action btn-danger">
+                🗑 Delete
+              </button>
+            </div>
+          </div>
+
+          <div *ngIf="blog.showComments" class="comment-section">
+            <div *ngIf="blog.comments?.length > 0" class="comments-list">
+              <div *ngFor="let comment of blog.comments" class="comment-item">
+                <strong>{{ comment.authorUserId }}</strong>
+                <p>{{ comment.text }}</p>
+              </div>
+            </div>
+            <div *ngIf="blog.comments?.length === 0" class="empty-state">
+              <p>No comments yet.</p>
+            </div>
+          </div>
+
+          <div *ngIf="blog.showCommentForm && (blog.following || blog.authorUserId === currentUserId)" class="comment-section">
+            <div class="comment-form">
+              <textarea
+                [(ngModel)]="blog.newComment"
+                placeholder="Write a comment..."
+                class="form-textarea"
+                rows="2"
+              ></textarea>
+              <button (click)="addComment(blog)" class="btn-submit" style="display:block;margin-top:8px;">Post Comment</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div *ngIf="!loading && blogs.length === 0" class="empty-state">
+        <p>No blogs yet. Start writing your travel story!</p>
+      </div>
+
+    </div>
+
+
+  </div>
+</div>iv>

@@ -1,0 +1,118 @@
+<div class="container">
+  <nav class="navbar">
+    <a routerLink="/" class="logo">✈ Traavellio</a>
+    <div class="nav-links">
+      <a routerLink="/blog" class="nav-link">Blogs</a>
+      <a routerLink="/profile" class="nav-link">Profile</a>
+      <a (click)="signOut()" class="nav-cta" style="cursor:pointer;">Sign Out →</a>
+    </div>
+  </nav>
+
+  <div class="feed-header">
+    <div class="header-content">
+      <h1 class="page-title">Your Travel Feed</h1>
+      <p class="page-subtitle">Stories from travelers you follow</p>
+      
+      <div class="tabs">
+        <button 
+          [class.active]="activeTab === 'feed'"
+          (click)="setActiveTab('feed')"
+          class="tab-btn"
+        >
+           Feed  │
+        </button>
+        <button 
+          [class.active]="activeTab === 'recommendations'"
+          (click)="setActiveTab('recommendations')"
+          class="tab-btn"
+        >
+           Recommendations
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="feed-wrapper">
+
+    <div class="feed-main">
+      <div *ngIf="activeTab === 'feed'" class="feed-content">
+        <div *ngIf="loading" class="loading">Loading your feed...</div>
+        
+        <div *ngIf="error && !loading" class="error-banner">{{ error }}</div>
+
+        <div *ngIf="!loading && feedBlogs.length > 0" class="blogs-list">
+          <div *ngFor="let blog of feedBlogs" class="blog-card">
+            <div class="blog-header-card">
+              <div class="blog-author-info">
+                <div class="author-avatar">{{ blog.author?.name?.charAt(0) || 'U' }}</div>
+                <div class="author-details">
+                  <h4 class="author-name">{{ blog.author?.name || 'Unknown Author' }}</h4>
+                  <p class="blog-date">{{ blog.createdAt | date: 'MMM d, yyyy' }}</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="blog-body">
+              <h2 class="blog-title">{{ blog.title }}</h2>
+              <p class="blog-excerpt">{{ blog.content | slice:0:250 }}...</p>
+            </div>
+
+            <div class="blog-footer">
+              <div class="blog-stats">
+                <span class="stat">❤ {{ blog.likeCount || 0 }} Likes</span>
+                <span class="stat">💬 {{ blog.commentCount || 0 }} Comments</span>
+              </div>
+              <a href="#" class="btn-read-more">Read More →</a>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!loading && feedBlogs.length === 0" class="empty-state">
+          <p>📭 Your feed is empty. Follow more travelers to see their stories!</p>
+        </div>
+      </div>
+
+      <div *ngIf="activeTab === 'recommendations'" class="recommendations-content">
+        <div *ngIf="loadingRecommendations" class="loading">Loading recommendations...</div>
+        
+        <div *ngIf="error && !loadingRecommendations" class="error-banner">{{ error }}</div>
+
+        <div *ngIf="!loadingRecommendations && recommendations.length > 0" class="recommendations-grid">
+          <div *ngFor="let rec of recommendations" class="recommendation-card">
+            <div class="rec-header">
+              <div class="rec-avatar">{{ rec.userId?.charAt(0) || 'U' }}</div>
+              <div class="rec-info">
+                <h4 class="rec-name">{{ rec.userId }}</h4>
+                <p class="rec-mutual">{{ rec.mutualFollowedCount }} mutual connections</p>
+              </div>
+            </div>
+            
+            <p class="rec-reason">You both follow people in common</p>
+            
+            <button 
+              (click)="rec.followed ? unfollowUser(rec.userId) : followUser(rec.userId)"
+              [class.following]="rec.followed"
+              class="btn-follow"
+            >
+              {{ rec.followed ? '✓ Following' : '+ Follow' }}
+            </button>
+          </div>
+        </div>
+
+        <div *ngIf="!loadingRecommendations && recommendations.length === 0" class="empty-state">
+          <p> No new recommendations at this time. Follow more travelers to see suggestions!</p>
+        </div>
+      </div>
+    </div>
+
+    <aside class="feed-sidebar">
+      <div class="sidebar-cta">
+        <div class="sidebar-label">+ Share</div>
+        <h3 class="sidebar-cta-title">Have a story <span>worth telling?</span></h3>
+        <p class="sidebar-cta-desc">Publish a new blog and share it with travelers around the world.</p>
+        <a routerLink="/blog" class="btn-sidebar-cta">Write a story →</a>
+      </div>
+    </aside>
+
+  </div>
+</div>

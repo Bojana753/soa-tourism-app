@@ -124,17 +124,19 @@ public class BlogService {
         }
     }
 
-    private BlogResponse toBlogResponse(BlogPost p) {
-        long likes = blogLikeRepository.countByBlogPostId(p.getId());
-        return new BlogResponse(
-                p.getId(),
-                p.getAuthorUserId(),
-                p.getTitle(),
-                p.getDescription(),
-                p.getImageUrls() != null ? List.copyOf(p.getImageUrls()) : List.of(),
-                p.getCreatedAt(),
-                likes);
-    }
+private BlogResponse toBlogResponse(BlogPost p) {
+    long likes = blogLikeRepository.countByBlogPostId(p.getId());
+    long comments = commentRepository.countByBlogPostId(p.getId());
+    return new BlogResponse(
+            p.getId(),
+            p.getAuthorUserId(),
+            p.getTitle(),
+            p.getDescription(),
+            p.getImageUrls() != null ? List.copyOf(p.getImageUrls()) : List.of(),
+            p.getCreatedAt(),
+            likes,
+            comments);
+}
 
     private BlogDetailResponse toDetail(BlogPost p, List<CommentResponse> comments) {
         BlogResponse base = toBlogResponse(p);
@@ -158,4 +160,10 @@ public class BlogService {
                 c.getCreatedAt(),
                 c.getUpdatedAt());
     }
+
+    public List<CommentResponse> getCommentsByBlogId(String blogId) {
+    return commentRepository.findByBlogPostIdOrderByCreatedAtAsc(blogId).stream()
+            .map(this::toCommentResponse)
+            .toList();
+}
 }

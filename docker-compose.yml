@@ -82,6 +82,7 @@ services:
     depends_on:
       - stakeholders-service
       - blog-service
+      - follower-service
 
 volumes:
   blog_mongo_data:

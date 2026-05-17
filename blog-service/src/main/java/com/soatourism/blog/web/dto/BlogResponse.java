@@ -10,6 +10,7 @@ public record BlogResponse(
         String description,
         List<String> imageUrls,
         Instant createdAt,
-        long likeCount
+        long likeCount,
+        long commentCount
 ) {
 }
