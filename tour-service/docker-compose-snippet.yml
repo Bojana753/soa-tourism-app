@@ -1,0 +1,28 @@
+# Dodaj ovo u postojeći docker-compose.yml
+
+  tour-service:
+    build: ./tour-service
+    ports:
+      - "8083:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://tour-db:5432/tourdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      - tour-db
+    networks:
+      - app-network
+
+  tour-db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_DB: tourdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - tour-db-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+# U volumes sekciji dodaj:
+# tour-db-data:

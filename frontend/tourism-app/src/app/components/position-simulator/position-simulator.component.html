@@ -1,0 +1,55 @@
+<div class="simulator-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Position Simulator</h1>
+      <p class="page-subtitle">Simulate your current location on the map</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="useGPSPosition()">📡 Use GPS</button>
+      <button *ngIf="currentPosition" class="btn-danger" (click)="clearPosition()">✕ Clear Position</button>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+  <div class="simulator-layout">
+    <div class="info-panel">
+      <div class="info-card">
+        <h3 class="info-title">How it works</h3>
+        <ul class="info-list">
+          <li>Click anywhere on the map to set your simulated position.</li>
+          <li>Your position is saved and used in Tour Execution.</li>
+          <li>Use "Use GPS" to auto-detect your real location.</li>
+          <li>The position persists across pages in this session.</li>
+        </ul>
+      </div>
+
+      <div class="position-display" [class.has-pos]="currentPosition">
+        <div class="pos-icon">{{ currentPosition ? '📍' : '❓' }}</div>
+        <div class="pos-info">
+          <span class="pos-label">Current Position</span>
+          <div *ngIf="currentPosition" class="pos-coords">
+            <span class="coord-row">
+              <span class="coord-key">Latitude</span>
+              <span class="coord-val">{{ currentPosition.lat.toFixed(6) }}</span>
+            </span>
+            <span class="coord-row">
+              <span class="coord-key">Longitude</span>
+              <span class="coord-val">{{ currentPosition.lng.toFixed(6) }}</span>
+            </span>
+          </div>
+          <span *ngIf="!currentPosition" class="pos-empty">Not set — click on the map</span>
+        </div>
+      </div>
+
+      <div class="hint-box">
+        <span class="hint-icon">🎯</span>
+        <span>Click anywhere on the map to update your simulated position.</span>
+      </div>
+    </div>
+
+    <div class="map-wrapper">
+      <div id="simulator-map"></div>
+    </div>
+  </div>
+</div>

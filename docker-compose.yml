@@ -68,6 +68,34 @@ services:
       - follower-neo4j
       - blog-service
 
+  tour-service:
+    build: ./tour-service
+    ports:
+      - "8084:8083"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://tour-db:5432/tourdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      tour-db:
+        condition: service_healthy
+
+  tour-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: tourdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - tour_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   frontend:
     build: ./frontend/tourism-app
     ports:
@@ -91,6 +119,7 @@ volumes:
   follower_neo4j_data:
   follower_neo4j_logs:
   stakeholders_pg_data:
+  tour_pg_data:
 
 networks:
   default:

@@ -1,0 +1,139 @@
+<div class="tour-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">My Tours</h1>
+      <p class="page-subtitle">Manage and create your travel experiences</p>
+    </div>
+    <button class="btn-primary" (click)="toggleCreateForm()">
+      <span class="btn-icon">{{ showCreateForm ? '✕' : '+' }}</span>
+      {{ showCreateForm ? 'Cancel' : 'Create Tour' }}
+    </button>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+  <!-- Create Tour Form -->
+  <div *ngIf="showCreateForm" class="card form-card">
+    <h2 class="card-title">New Tour</h2>
+    <div class="form-group">
+      <label class="form-label">Tour Name *</label>
+      <input class="form-control" type="text" [(ngModel)]="newTour.name" placeholder="Enter tour name" />
+    </div>
+    <div class="form-group">
+      <label class="form-label">Description *</label>
+      <textarea class="form-control" rows="4" [(ngModel)]="newTour.description" placeholder="Describe your tour..."></textarea>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Difficulty</label>
+      <select class="form-control" [(ngModel)]="newTour.difficulty">
+        <option [value]="TourDifficulty.Easy">Easy</option>
+        <option [value]="TourDifficulty.Medium">Medium</option>
+        <option [value]="TourDifficulty.Hard">Hard</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Tags</label>
+      <div class="tag-input-container">
+        <div class="tags-display">
+          <span *ngFor="let tag of newTour.tags" class="tag">
+            {{ tag }}
+            <button class="tag-remove" (click)="removeTag(tag)">×</button>
+          </span>
+        </div>
+        <div class="tag-input-row">
+          <input class="form-control tag-input" type="text" [(ngModel)]="tagInput"
+                 placeholder="Add tag and press Enter"
+                 (keydown)="onTagKeydown($event)" />
+          <button class="btn-secondary" (click)="addTag()">Add</button>
+        </div>
+      </div>
+    </div>
+    <div class="form-info">
+      <span class="info-icon">ℹ</span>
+      Tour will be created with <strong>Draft</strong> status and price set to <strong>0</strong>.
+    </div>
+    <div class="form-actions">
+      <button class="btn-ghost" (click)="toggleCreateForm()">Cancel</button>
+      <button class="btn-primary" (click)="createTour()" [disabled]="isLoading">
+        {{ isLoading ? 'Creating...' : 'Create Tour' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div *ngIf="isLoading && !showCreateForm" class="loading-state">
+    <div class="spinner"></div>
+    <p>Loading your tours...</p>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && tours.length === 0 && !showCreateForm" class="empty-state">
+    <div class="empty-icon">🗺️</div>
+    <h3>No tours yet</h3>
+    <p>Create your first tour and start sharing your adventures!</p>
+    <button class="btn-primary" (click)="toggleCreateForm()">Create Your First Tour</button>
+  </div>
+
+  <!-- Tours Grid -->
+  <div *ngIf="!isLoading && tours.length > 0" class="tours-grid">
+    <div *ngFor="let tour of tours" class="tour-card" (click)="selectTour(tour)">
+      <div class="tour-card-header">
+        <h3 class="tour-name">{{ tour.name }}</h3>
+        <div class="tour-badges">
+          <span class="badge" [ngClass]="getDifficultyClass(tour.difficulty)">{{ tour.difficulty }}</span>
+          <span class="badge" [ngClass]="getStatusClass(tour.status)">{{ tour.status }}</span>
+        </div>
+      </div>
+      <p class="tour-description">{{ tour.description }}</p>
+      <div class="tour-tags">
+        <span *ngFor="let tag of tour.tags" class="tag-chip">{{ tag }}</span>
+      </div>
+      <div class="tour-meta">
+        <span *ngIf="tour.lengthKm" class="meta-item">
+          <span class="meta-icon">📍</span> {{ tour.lengthKm }} km
+        </span>
+        <span class="meta-item">
+          <span class="meta-icon">💰</span> {{ tour.price === 0 ? 'Free' : tour.price + ' RSD' }}
+        </span>
+        <span *ngIf="tour.keyPoints" class="meta-item">
+          <span class="meta-icon">🚩</span> {{ tour.keyPoints.length }} key points
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tour Detail Modal -->
+  <div *ngIf="selectedTour" class="modal-overlay" (click)="closeDetail()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>{{ selectedTour.name }}</h2>
+        <button class="modal-close" (click)="closeDetail()">✕</button>
+      </div>
+      <div class="modal-body">
+        <div class="detail-badges">
+          <span class="badge" [ngClass]="getDifficultyClass(selectedTour.difficulty)">{{ selectedTour.difficulty }}</span>
+          <span class="badge" [ngClass]="getStatusClass(selectedTour.status)">{{ selectedTour.status }}</span>
+        </div>
+        <p class="detail-description">{{ selectedTour.description }}</p>
+        <div class="detail-tags">
+          <span *ngFor="let tag of selectedTour.tags" class="tag-chip">{{ tag }}</span>
+        </div>
+        <div class="detail-meta-grid">
+          <div class="detail-meta-item">
+            <span class="meta-label">Price</span>
+            <span class="meta-value">{{ selectedTour.price === 0 ? 'Free' : selectedTour.price + ' RSD' }}</span>
+          </div>
+          <div *ngIf="selectedTour.lengthKm" class="detail-meta-item">
+            <span class="meta-label">Length</span>
+            <span class="meta-value">{{ selectedTour.lengthKm }} km</span>
+          </div>
+          <div *ngIf="selectedTour.keyPoints" class="detail-meta-item">
+            <span class="meta-label">Key Points</span>
+            <span class="meta-value">{{ selectedTour.keyPoints!.length }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -11,6 +11,10 @@ import { AdminComponent } from './components/admin/admin.component';
 import { HomeComponent } from './components/home/home.component';
 import { BlogComponent } from './components/blog/blog.component';
 import { FeedComponent } from './components/feed/feed.component';
+import { TourComponent } from './components/tours/tour.component';
+import { KeypointComponent } from './components/keypoint/keypoint.component';
+import { ReviewComponent } from './components/review/review.component';
+import { PositionSimulatorComponent } from './components/position-simulator/position-simulator.component';
 
 @NgModule({
   declarations: [
@@ -21,7 +25,11 @@ import { FeedComponent } from './components/feed/feed.component';
     AdminComponent,
     HomeComponent,
     BlogComponent,
-    FeedComponent
+    FeedComponent,
+    TourComponent,
+    KeypointComponent,
+    ReviewComponent,
+    PositionSimulatorComponent,
   ],
   imports: [
     BrowserModule,

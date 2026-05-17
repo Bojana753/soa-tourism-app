@@ -1,0 +1,79 @@
+<div class="keypoint-page">
+  <div class="page-header">
+    <div class="header-content">
+      <h1 class="page-title">Key Points</h1>
+      <p class="page-subtitle" *ngIf="tour">Tour: <strong>{{ tour.name }}</strong></p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-secondary" (click)="openCreateForm()">+ Add Key Point</button>
+      <button class="btn-primary" (click)="startSelectingOnMap()">📍 Pick on Map</button>
+    </div>
+  </div>
+
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+  <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+  <div *ngIf="isSelectingOnMap" class="map-hint">
+    <span class="hint-icon">🎯</span> Click anywhere on the map to set the location
+  </div>
+
+  <div class="layout">
+    <div class="map-section">
+      <div id="keypoint-map"></div>
+    </div>
+
+    <div class="sidebar">
+      <div *ngIf="showForm" class="card form-card">
+        <h3 class="card-title">{{ editingKeyPoint ? 'Edit Key Point' : 'New Key Point' }}</h3>
+
+        <div class="location-display" [class.has-location]="hasLocation">
+          <span *ngIf="hasLocation">📍 {{ formData.latitude?.toFixed(5) }}, {{ formData.longitude?.toFixed(5) }}</span>
+          <span *ngIf="!hasLocation" class="no-location">No location selected</span>
+          <button class="btn-ghost-sm" (click)="startSelectingOnMap()">{{ hasLocation ? 'Change' : 'Select on Map' }}</button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Name *</label>
+          <input class="form-control" type="text" [(ngModel)]="formData.name" placeholder="e.g. Kalemegdan Fortress" />
+        </div>
+        <div class="form-group">
+          <label class="form-label">Description</label>
+          <textarea class="form-control" rows="3" [(ngModel)]="formData.description" placeholder="Describe this key point..."></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Image URL</label>
+          <input class="form-control" type="url" [(ngModel)]="formData.imageUrl" placeholder="https://..." />
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-ghost" (click)="cancelForm()">Cancel</button>
+          <button class="btn-primary" (click)="saveKeyPoint()" [disabled]="isLoading">
+            {{ isLoading ? 'Saving...' : (editingKeyPoint ? 'Update' : 'Add Key Point') }}
+          </button>
+        </div>
+      </div>
+
+      <div class="keypoints-list">
+        <div class="list-header">
+          <h3>Key Points ({{ keyPoints.length }})</h3>
+        </div>
+        <div *ngIf="keyPoints.length === 0" class="empty-state-small">
+          <p>No key points yet. Add your first one!</p>
+        </div>
+        <div *ngFor="let kp of keyPoints; let i = index" class="keypoint-item">
+          <div class="keypoint-index">{{ i + 1 }}</div>
+          <div class="keypoint-info">
+            <div class="keypoint-name">{{ kp.name }}</div>
+            <div class="keypoint-coords">{{ kp.latitude.toFixed(4) }}°, {{ kp.longitude.toFixed(4) }}°</div>
+            <div *ngIf="kp.description" class="keypoint-desc">{{ kp.description }}</div>
+            <img *ngIf="kp.imageUrl" [src]="kp.imageUrl" class="keypoint-img" alt="Key point image" />
+          </div>
+          <div class="keypoint-actions">
+            <button class="btn-icon-action" (click)="openEditForm(kp)" title="Edit">✏️</button>
+            <button class="btn-icon-action" (click)="deleteKeyPoint(kp)" title="Delete">🗑️</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
