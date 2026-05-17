@@ -56,3 +56,15 @@ func UpdateProfile(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Profile updated"})
 }
+
+func GetUserById(w http.ResponseWriter, r *http.Request) {
+	id := mux.Vars(r)["id"]
+	var user model.User
+	result := db.DB.First(&user, id)
+	if result.Error != nil {
+		http.Error(w, "User not found", http.StatusNotFound)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(user)
+}

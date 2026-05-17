@@ -17,16 +17,14 @@
         <button 
           [class.active]="activeTab === 'feed'"
           (click)="setActiveTab('feed')"
-          class="tab-btn"
-        >
-           Feed  │
+          class="tab-btn">
+          Feed
         </button>
         <button 
           [class.active]="activeTab === 'recommendations'"
           (click)="setActiveTab('recommendations')"
-          class="tab-btn"
-        >
-           Recommendations
+          class="tab-btn">
+          Recommendations
         </button>
       </div>
     </div>
@@ -37,16 +35,15 @@
     <div class="feed-main">
       <div *ngIf="activeTab === 'feed'" class="feed-content">
         <div *ngIf="loading" class="loading">Loading your feed...</div>
-        
         <div *ngIf="error && !loading" class="error-banner">{{ error }}</div>
 
         <div *ngIf="!loading && feedBlogs.length > 0" class="blogs-list">
           <div *ngFor="let blog of feedBlogs" class="blog-card">
             <div class="blog-header-card">
               <div class="blog-author-info">
-                <div class="author-avatar">{{ blog.author?.name?.charAt(0) || 'U' }}</div>
+                <div class="author-avatar">{{ (blog.authorName || blog.authorUserId)?.charAt(0) || 'U' }}</div>
                 <div class="author-details">
-                  <h4 class="author-name">{{ blog.author?.name || 'Unknown Author' }}</h4>
+                  <h4 class="author-name">{{ blog.authorName || blog.authorUserId }}</h4>
                   <p class="blog-date">{{ blog.createdAt | date: 'MMM d, yyyy' }}</p>
                 </div>
               </div>
@@ -54,16 +51,31 @@
 
             <div class="blog-body">
               <h2 class="blog-title">{{ blog.title }}</h2>
-              <p class="blog-excerpt">{{ blog.content | slice:0:250 }}...</p>
+              <p class="blog-excerpt">{{ blog.description | slice:0:250 }}...</p>
             </div>
 
             <div class="blog-footer">
               <div class="blog-stats">
                 <span class="stat">❤ {{ blog.likeCount || 0 }} Likes</span>
-                <span class="stat">💬 {{ blog.commentCount || 0 }} Comments</span>
+                <span class="stat" (click)="loadComments(blog)" style="cursor:pointer;">
+                  💬 {{ blog.commentCount || 0 }} Comments
+                </span>
               </div>
-              <a href="#" class="btn-read-more">Read More →</a>
+              <a routerLink="/blog" class="btn-read-more">Read More →</a>
             </div>
+
+            <div *ngIf="blog.showComments" class="comment-section">
+              <div *ngIf="blog.comments?.length > 0" class="comments-list">
+                <div *ngFor="let comment of blog.comments" class="comment-item">
+                  <strong>{{ comment.authorName || comment.authorUserId }}</strong>
+                  <p>{{ comment.text }}</p>
+                </div>
+              </div>
+              <div *ngIf="blog.comments?.length === 0" class="empty-state">
+                <p>No comments yet.</p>
+              </div>
+            </div>
+
           </div>
         </div>
 
@@ -74,33 +86,29 @@
 
       <div *ngIf="activeTab === 'recommendations'" class="recommendations-content">
         <div *ngIf="loadingRecommendations" class="loading">Loading recommendations...</div>
-        
         <div *ngIf="error && !loadingRecommendations" class="error-banner">{{ error }}</div>
 
         <div *ngIf="!loadingRecommendations && recommendations.length > 0" class="recommendations-grid">
           <div *ngFor="let rec of recommendations" class="recommendation-card">
             <div class="rec-header">
-              <div class="rec-avatar">{{ rec.userId?.charAt(0) || 'U' }}</div>
+              <div class="rec-avatar">{{ (rec.username || rec.userId)?.charAt(0) || 'U' }}</div>
               <div class="rec-info">
-                <h4 class="rec-name">{{ rec.userId }}</h4>
+                <h4 class="rec-name">{{ rec.username || rec.userId }}</h4>
                 <p class="rec-mutual">{{ rec.mutualFollowedCount }} mutual connections</p>
               </div>
             </div>
-            
             <p class="rec-reason">You both follow people in common</p>
-            
             <button 
               (click)="rec.followed ? unfollowUser(rec.userId) : followUser(rec.userId)"
               [class.following]="rec.followed"
-              class="btn-follow"
-            >
+              class="btn-follow">
               {{ rec.followed ? '✓ Following' : '+ Follow' }}
             </button>
           </div>
         </div>
 
         <div *ngIf="!loadingRecommendations && recommendations.length === 0" class="empty-state">
-          <p> No new recommendations at this time. Follow more travelers to see suggestions!</p>
+          <p>✨ No new recommendations at this time. Follow more travelers to see suggestions!</p>
         </div>
       </div>
     </div>

@@ -68,4 +68,8 @@ private getUserIdFromToken(): string | null {
   addComment(blogId: string, data: any): Observable<any> {
     return this.http.post(`${this.url}/${blogId}/comments`, data, { headers: this.headers() });
   }
+
+  getUserById(id: string): Observable<any> {
+  return this.http.get(`http://localhost:8080/users/${id}`, { headers: this.headers() });
+}
 }

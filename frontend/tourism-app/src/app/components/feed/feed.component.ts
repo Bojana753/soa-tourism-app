@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FollowerService } from '../../services/follower.service';
 import { AuthService } from '../../services/auth.service';
+import { BlogService } from '../../services/blog.service';
 import { Router } from '@angular/router';
 
 @Component({
@@ -19,6 +20,7 @@ export class FeedComponent implements OnInit {
 
   constructor(
     private followerService: FollowerService,
+    private blogService: BlogService,
     private auth: AuthService,
     private router: Router
   ) {}
@@ -40,6 +42,12 @@ export class FeedComponent implements OnInit {
       next: (data) => {
         this.feedBlogs = Array.isArray(data) ? data : [];
         this.loading = false;
+        this.feedBlogs.forEach(b => {
+          this.blogService.getUserById(b.authorUserId).subscribe({
+            next: (user) => { b.authorName = user.username || b.authorUserId; },
+            error: () => { b.authorName = b.authorUserId; }
+          });
+        });
       },
       error: () => {
         this.error = 'Failed to load feed';
@@ -54,12 +62,39 @@ export class FeedComponent implements OnInit {
       next: (data) => {
         this.recommendations = Array.isArray(data) ? data : [];
         this.loadingRecommendations = false;
+        this.recommendations.forEach(rec => {
+          this.blogService.getUserById(rec.userId).subscribe({
+            next: (user) => { rec.username = user.username || rec.userId; },
+            error: () => { rec.username = rec.userId; }
+          });
+        });
       },
       error: () => {
         this.error = 'Failed to load recommendations';
         this.loadingRecommendations = false;
       }
     });
+  }
+
+  loadComments(blog: any): void {
+    blog.showComments = !blog.showComments;
+    if (blog.showComments && !blog.commentsLoaded) {
+      this.blogService.getComments(blog.id).subscribe({
+        next: (data) => {
+          blog.comments = Array.isArray(data) ? data : [];
+          blog.comments.forEach((comment: any) => {
+            this.blogService.getUserById(comment.authorUserId).subscribe({
+              next: (user) => { comment.authorName = user.username || comment.authorUserId; },
+              error: () => { comment.authorName = comment.authorUserId; }
+            });
+          });
+          blog.commentsLoaded = true;
+        },
+        error: () => {
+          blog.comments = [];
+        }
+      });
+    }
   }
 
   followUser(userId: string): void {

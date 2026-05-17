@@ -11,6 +11,7 @@ public record BlogResponse(
         List<String> imageUrls,
         Instant createdAt,
         long likeCount,
-        long commentCount
+        long commentCount,
+        boolean likedByCurrentUser
 ) {
 }

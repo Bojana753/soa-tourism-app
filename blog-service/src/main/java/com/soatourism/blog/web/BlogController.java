@@ -46,12 +46,15 @@ public class BlogController {
     }
 
     @GetMapping
-    public Page<BlogResponse> listPosts(@PageableDefault(size = 20) Pageable pageable) {
-        return blogService.listPosts(pageable);
+    public Page<BlogResponse> listPosts(
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
+            @PageableDefault(size = 20) Pageable pageable) {
+        return blogService.listPosts(userId != null ? userId.trim() : null, pageable);
     }
 
     @GetMapping("/by-authors")
     public Page<BlogResponse> listPostsByAuthors(
+            @RequestHeader(value = "X-User-Id", required = false) String userId,
             @RequestParam List<String> authorIds,
             @PageableDefault(size = 20) Pageable pageable) {
         List<String> normalizedAuthorIds = authorIds.stream()
@@ -59,12 +62,14 @@ public class BlogController {
                 .map(String::trim)
                 .filter(authorId -> !authorId.isBlank())
                 .toList();
-        return blogService.listPostsByAuthors(normalizedAuthorIds, pageable);
+        return blogService.listPostsByAuthors(userId != null ? userId.trim() : null, normalizedAuthorIds, pageable);
     }
 
     @GetMapping("/{blogId}")
-    public BlogDetailResponse getPost(@PathVariable String blogId) {
-        return blogService.getPostDetail(blogId);
+    public BlogDetailResponse getPost(
+            @PathVariable String blogId,
+            @RequestHeader(value = "X-User-Id", required = false) String userId) {
+        return blogService.getPostDetail(blogId, userId != null ? userId.trim() : null);
     }
 
     @PostMapping("/{blogId}/comments")
@@ -102,7 +107,7 @@ public class BlogController {
     }
 
     @GetMapping("/{blogId}/comments")
-public List<CommentResponse> getComments(@PathVariable String blogId) {
-    return blogService.getCommentsByBlogId(blogId);
-}
+    public List<CommentResponse> getComments(@PathVariable String blogId) {
+        return blogService.getCommentsByBlogId(blogId);
+    }
 }

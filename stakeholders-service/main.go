@@ -38,7 +38,8 @@ func main() {
 	api.HandleFunc("/users/{id}/block", handler.BlockUser).Methods("PUT", "OPTIONS")
 	api.HandleFunc("/users/profile", handler.GetProfile).Methods("GET", "OPTIONS")
 	api.HandleFunc("/users/profile", handler.UpdateProfile).Methods("PUT", "OPTIONS")
+	api.HandleFunc("/users/{id}", handler.GetUserById).Methods("GET", "OPTIONS")
 
-fmt.Println("Stakeholders service started on :8081")
+	fmt.Println("Stakeholders service started on :8081")
 	http.ListenAndServe(":8081", r)
 }

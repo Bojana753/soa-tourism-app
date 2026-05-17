@@ -7,9 +7,9 @@ import { FollowerService } from '../../services/follower.service';
 @Component({
   selector: 'app-blog',
   templateUrl: './blog.component.html',
-  styleUrls: ['./blog.component.css']
-})
-export class BlogComponent implements OnInit {
+  styleUrls: ['./blog.component.css'],})
+
+  export class BlogComponent implements OnInit {
   blogs: any[] = [];
   followingIds: string[] = [];
   loading = false;
@@ -53,12 +53,21 @@ export class BlogComponent implements OnInit {
     this.error = '';
     this.blogService.getAllBlogs().subscribe({
       next: (data) => {
-        this.blogs = data?.content ?? data ?? [];
+        this.blogs = (data?.content ?? data ?? []).map((b: any) => ({
+          ...b,
+          liked: b.likedByCurrentUser ?? false
+        }));
         this.loading = false;
         this.followerService.getFollowing().subscribe({
           next: (ids: string[]) => {
             this.followingIds = ids;
-            this.blogs.forEach(b => b.following = ids.includes(b.authorUserId));
+            this.blogs.forEach(b => {
+              b.following = ids.includes(b.authorUserId);
+              this.blogService.getUserById(b.authorUserId).subscribe({
+                next: (user) => { b.authorName = user.username || b.authorUserId; },
+                error: () => { b.authorName = b.authorUserId; }
+              });
+            });
           }
         });
       },
@@ -79,7 +88,7 @@ export class BlogComponent implements OnInit {
       description: this.newBlogContent
     }).subscribe({
       next: (blog) => {
-        this.blogs.unshift(blog);
+        this.blogs.unshift({ ...blog, liked: false, following: false });
         this.newBlogTitle = '';
         this.newBlogContent = '';
         this.showNewBlogForm = false;
@@ -152,6 +161,10 @@ export class BlogComponent implements OnInit {
     this.blogService.addComment(blog.id, { text: blog.newComment }).subscribe({
       next: (comment) => {
         if (!blog.comments) blog.comments = [];
+        this.blogService.getUserById(comment.authorUserId).subscribe({
+          next: (user) => { comment.authorName = user.username || comment.authorUserId; },
+          error: () => { comment.authorName = comment.authorUserId; }
+        });
         blog.comments.push(comment);
         blog.newComment = '';
         blog.commentCount = (blog.commentCount || 0) + 1;
@@ -168,6 +181,12 @@ export class BlogComponent implements OnInit {
       this.blogService.getComments(blog.id).subscribe({
         next: (data) => {
           blog.comments = Array.isArray(data) ? data : [];
+          blog.comments.forEach((comment: any) => {
+            this.blogService.getUserById(comment.authorUserId).subscribe({
+              next: (user) => { comment.authorName = user.username || comment.authorUserId; },
+              error: () => { comment.authorName = comment.authorUserId; }
+            });
+          });
           blog.commentsLoaded = true;
         },
         error: () => {

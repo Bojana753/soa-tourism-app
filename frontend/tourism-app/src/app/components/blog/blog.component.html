@@ -27,7 +27,7 @@
       <div *ngIf="showNewBlogForm" class="new-blog-form">
         <h3>Write a New Story</h3>
         <input type="text" placeholder="Blog Title" [(ngModel)]="newBlogTitle" class="form-input"/>
-        <textarea placeholder="Your story...-" [(ngModel)]="newBlogContent" class="form-textarea"></textarea>
+        <textarea placeholder="Your story..." [(ngModel)]="newBlogContent" class="form-textarea"></textarea>
         <button (click)="createBlog()" class="btn-submit">Publish Story</button>
         <p class="error" *ngIf="error">{{ error }}</p>
       </div>
@@ -42,9 +42,9 @@
         <div *ngFor="let blog of blogs" class="blog-card">
           <div class="blog-header-card">
             <div class="blog-author-info">
-              <div class="author-avatar">{{ blog.authorUserId?.charAt(0) || 'U' }}</div>
+              <div class="author-avatar">{{ (blog.authorName || blog.authorUserId)?.charAt(0) || 'U' }}</div>
               <div class="author-details">
-                <h4 class="author-name">{{ blog.authorUserId || 'Unknown Author' }}</h4>
+                <h4 class="author-name">{{ blog.authorName || blog.authorUserId || 'Unknown Author' }}</h4>
                 <p class="blog-date">{{ blog.createdAt | date: 'MMM d, yyyy' }}</p>
               </div>
               <button
@@ -91,7 +91,7 @@
           <div *ngIf="blog.showComments" class="comment-section">
             <div *ngIf="blog.comments?.length > 0" class="comments-list">
               <div *ngFor="let comment of blog.comments" class="comment-item">
-                <strong>{{ comment.authorUserId }}</strong>
+                <strong>{{ comment.authorName || comment.authorUserId }}</strong>
                 <p>{{ comment.text }}</p>
               </div>
             </div>
@@ -120,7 +120,5 @@
       </div>
 
     </div>
-
-
   </div>
-</div>iv>
+</div>

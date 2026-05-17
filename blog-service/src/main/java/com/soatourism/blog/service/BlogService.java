@@ -48,25 +48,26 @@ public class BlogService {
         post.setImageUrls(req.imageUrls() != null ? new ArrayList<>(req.imageUrls()) : new ArrayList<>());
         post.setCreatedAt(Instant.now());
         BlogPost saved = blogPostRepository.save(post);
-        return toBlogResponse(saved);
+        return toBlogResponse(saved, authorUserId);
     }
 
-    public Page<BlogResponse> listPosts(Pageable pageable) {
-        return blogPostRepository.findAllByOrderByCreatedAtDesc(pageable).map(this::toBlogResponse);
+    public Page<BlogResponse> listPosts(String currentUserId, Pageable pageable) {
+        return blogPostRepository.findAllByOrderByCreatedAtDesc(pageable)
+                .map(p -> toBlogResponse(p, currentUserId));
     }
 
-    public Page<BlogResponse> listPostsByAuthors(List<String> authorUserIds, Pageable pageable) {
+    public Page<BlogResponse> listPostsByAuthors(String currentUserId, List<String> authorUserIds, Pageable pageable) {
         return blogPostRepository.findByAuthorUserIdInOrderByCreatedAtDesc(authorUserIds, pageable)
-                .map(this::toBlogResponse);
+                .map(p -> toBlogResponse(p, currentUserId));
     }
 
-    public BlogDetailResponse getPostDetail(String blogId) {
+    public BlogDetailResponse getPostDetail(String blogId, String currentUserId) {
         BlogPost post = blogPostRepository.findById(blogId)
                 .orElseThrow(() -> new NotFoundException("Blog not found."));
         List<CommentResponse> comments = commentRepository.findByBlogPostIdOrderByCreatedAtAsc(blogId).stream()
                 .map(this::toCommentResponse)
                 .toList();
-        return toDetail(post, comments);
+        return toDetail(post, comments, currentUserId);
     }
 
     public CommentResponse addComment(String blogId, String authorUserId, CreateCommentRequest req) {
@@ -124,22 +125,25 @@ public class BlogService {
         }
     }
 
-private BlogResponse toBlogResponse(BlogPost p) {
-    long likes = blogLikeRepository.countByBlogPostId(p.getId());
-    long comments = commentRepository.countByBlogPostId(p.getId());
-    return new BlogResponse(
-            p.getId(),
-            p.getAuthorUserId(),
-            p.getTitle(),
-            p.getDescription(),
-            p.getImageUrls() != null ? List.copyOf(p.getImageUrls()) : List.of(),
-            p.getCreatedAt(),
-            likes,
-            comments);
-}
+    private BlogResponse toBlogResponse(BlogPost p, String currentUserId) {
+        long likes = blogLikeRepository.countByBlogPostId(p.getId());
+        long comments = commentRepository.countByBlogPostId(p.getId());
+        boolean liked = currentUserId != null &&
+                blogLikeRepository.existsByBlogPostIdAndUserId(p.getId(), currentUserId);
+        return new BlogResponse(
+                p.getId(),
+                p.getAuthorUserId(),
+                p.getTitle(),
+                p.getDescription(),
+                p.getImageUrls() != null ? List.copyOf(p.getImageUrls()) : List.of(),
+                p.getCreatedAt(),
+                likes,
+                comments,
+                liked);
+    }
 
-    private BlogDetailResponse toDetail(BlogPost p, List<CommentResponse> comments) {
-        BlogResponse base = toBlogResponse(p);
+    private BlogDetailResponse toDetail(BlogPost p, List<CommentResponse> comments, String currentUserId) {
+        BlogResponse base = toBlogResponse(p, currentUserId);
         return new BlogDetailResponse(
                 base.id(),
                 base.authorUserId(),
@@ -162,8 +166,8 @@ private BlogResponse toBlogResponse(BlogPost p) {
     }
 
     public List<CommentResponse> getCommentsByBlogId(String blogId) {
-    return commentRepository.findByBlogPostIdOrderByCreatedAtAsc(blogId).stream()
-            .map(this::toCommentResponse)
-            .toList();
-}
+        return commentRepository.findByBlogPostIdOrderByCreatedAtAsc(blogId).stream()
+                .map(this::toCommentResponse)
+                .toList();
+    }
 }
