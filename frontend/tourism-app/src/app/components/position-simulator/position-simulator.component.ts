@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, AfterViewInit } from '@angular/core';
+import { Component, OnInit, OnDestroy, AfterViewInit, HostListener } from '@angular/core';
+import { Router } from '@angular/router';
 import { PositionService, Position } from '../../services/position.service';
 
 declare const L: any;
@@ -10,19 +11,28 @@ declare const L: any;
 })
 export class PositionSimulatorComponent implements OnInit, AfterViewInit, OnDestroy {
   currentPosition: Position | null = null;
+  isScrolled = false;
+  isLoggedIn = false;
+  isSelectingViaGPS = false;
+  successMessage = '';
+  errorMessage = '';
+
   private map: any;
   private positionMarker: any;
   private positionCircle: any;
-  successMessage = '';
 
-  constructor(private positionService: PositionService) {}
+  constructor(
+    private positionService: PositionService,
+    private router: Router
+  ) {}
 
-ngOnInit(): void {
-  this.positionService.loadPositionFromBackend(); 
-  this.positionService.position$.subscribe(pos => {
-    this.currentPosition = pos;
-  });
-}
+  ngOnInit(): void {
+    this.isLoggedIn = !!localStorage.getItem('token');
+    this.positionService.loadPositionFromBackend();
+    this.positionService.position$.subscribe(pos => {
+      this.currentPosition = pos;
+    });
+  }
 
   ngAfterViewInit(): void {
     this.initMap();
@@ -30,6 +40,11 @@ ngOnInit(): void {
 
   ngOnDestroy(): void {
     if (this.map) this.map.remove();
+  }
+
+  @HostListener('window:scroll', [])
+  onScroll(): void {
+    this.isScrolled = window.scrollY > 60;
   }
 
   private initMap(): void {
@@ -57,17 +72,23 @@ ngOnInit(): void {
 
     const icon = L.divIcon({
       className: '',
-      html: `<div class="pos-marker-wrap"><div class="pos-dot"></div><div class="pos-pulse"></div></div>`,
-      iconSize: [40, 40], iconAnchor: [20, 20]
+      html: `<div class="pos-marker-gold"><div class="pos-dot-gold"></div><div class="pos-ring-gold"></div></div>`,
+      iconSize: [40, 40],
+      iconAnchor: [20, 20]
     });
 
     this.positionMarker = L.marker([lat, lng], { icon })
       .addTo(this.map)
-      .bindPopup(`<strong>Your Position</strong><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}`)
+      .bindPopup(`<strong style="font-family:'Cormorant Garamond',serif;font-size:15px;">Your Position</strong><br><span style="font-size:12px;color:#888;">Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}</span>`)
       .openPopup();
 
     this.positionCircle = L.circle([lat, lng], {
-      radius: 50, fillColor: '#4a7c59', fillOpacity: 0.15, color: '#4a7c59', weight: 1
+      radius: 80,
+      fillColor: '#c9a96e',
+      fillOpacity: 0.1,
+      color: '#c9a96e',
+      weight: 1.5,
+      dashArray: '4 4'
     }).addTo(this.map);
   }
 
@@ -75,8 +96,9 @@ ngOnInit(): void {
     this.positionService.setPosition(lat, lng);
     this.currentPosition = { lat, lng };
     this.drawPosition(lat, lng);
-    this.successMessage = 'Position updated!';
-    setTimeout(() => this.successMessage = '', 2500);
+    this.successMessage = 'Position updated successfully.';
+    this.errorMessage = '';
+    setTimeout(() => this.successMessage = '', 2800);
   }
 
   clearPosition(): void {
@@ -87,13 +109,28 @@ ngOnInit(): void {
   }
 
   useGPSPosition(): void {
-    if (!navigator.geolocation) { alert('Geolocation not supported.'); return; }
+    if (!navigator.geolocation) {
+      this.errorMessage = 'Geolocation is not supported by your browser.';
+      return;
+    }
+    this.isSelectingViaGPS = true;
     navigator.geolocation.getCurrentPosition(
       (pos) => {
+        this.isSelectingViaGPS = false;
         this.setPosition(pos.coords.latitude, pos.coords.longitude);
         this.map.setView([pos.coords.latitude, pos.coords.longitude], 16);
       },
-      () => alert('Unable to retrieve your location.')
+      () => {
+        this.isSelectingViaGPS = false;
+        this.errorMessage = 'Unable to retrieve your location. Please allow location access.';
+        setTimeout(() => this.errorMessage = '', 3500);
+      }
     );
+  }
+
+  signOut(): void {
+    localStorage.removeItem('token');
+    this.isLoggedIn = false;
+    this.router.navigate(['/login']);
   }
 }

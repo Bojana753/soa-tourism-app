@@ -1,130 +1,290 @@
-<div class="tour-page">
-  <div class="page-header">
-    <div class="header-content">
-      <h1 class="page-title">My Tours</h1>
-      <p class="page-subtitle">Manage and create your travel experiences</p>
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <a routerLink="/" class="logo">✈ Traavellio</a>
+  <div class="nav-links">
+    <ng-container *ngIf="isLoggedIn">
+      <a routerLink="/blog" class="nav-link">Blogs</a>
+      <a routerLink="/feed" class="nav-link">Feed</a>
+    </ng-container>
+    <a routerLink="/profile" class="nav-link">Profile</a>
+    <a routerLink="/position-simulator" class="nav-link" style="color: var(--gold) !important;">⊙ Simulator</a>
+    <ng-container *ngIf="!isLoggedIn">
+      <a routerLink="/login" class="nav-cta">Sign In →</a>
+    </ng-container>
+    <ng-container *ngIf="isLoggedIn">
+      <a (click)="signOut()" class="nav-cta" style="cursor:pointer;">Sign Out →</a>
+    </ng-container>
+  </div>
+</nav>
+
+<div class="tours-page">
+
+  <div class="tours-hero">
+    <div class="tours-hero-bg">
+      <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1800&q=80" alt="Tours" class="tours-hero-img" />
+      <div class="tours-hero-overlay"></div>
     </div>
-    <button class="btn-primary" *ngIf="isGuide" (click)="toggleCreateForm()">
-      <span class="btn-icon">{{ showCreateForm ? '✕' : '+' }}</span>
-      {{ showCreateForm ? 'Cancel' : 'Create Tour' }}
+    <div class="tours-hero-content">
+      <div class="section-label" style="color:#c9a96e">✦ My Tours</div>
+      <h1 class="tours-hero-title">Your Journeys,<br><em>Your Story</em></h1>
+      <p class="tours-hero-sub">Manage and craft your travel experiences</p>
+    </div>
+    <button class="btn-gold" *ngIf="isGuide" (click)="openWizard()">
+      <span class="btn-icon">+</span> Create Tour
     </button>
   </div>
 
-  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
-  <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+  <div class="tours-body">
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage && wizardStep === 0" class="alert alert-error">{{ errorMessage }}</div>
 
-  <div *ngIf="showCreateForm && isGuide" class="card form-card">
-    <h2 class="card-title">New Tour</h2>
-    <div class="form-group">
-      <label class="form-label">Tour Name *</label>
-      <input class="form-control" type="text" [(ngModel)]="newTour.name" placeholder="Enter tour name" />
+    <div *ngIf="isLoading && wizardStep === 0" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading your tours...</p>
     </div>
-    <div class="form-group">
-      <label class="form-label">Description *</label>
-      <textarea class="form-control" rows="4" [(ngModel)]="newTour.description" placeholder="Describe your tour..."></textarea>
+
+    <div *ngIf="!isLoading && tours.length === 0 && wizardStep === 0" class="empty-state">
+      <div class="empty-icon">🗺️</div>
+      <h3>No tours yet</h3>
+      <p *ngIf="isGuide">Create your first tour and start sharing your adventures!</p>
+      <p *ngIf="!isGuide">No tours available at the moment.</p>
+      <button *ngIf="isGuide" class="btn-gold" (click)="openWizard()">Create Your First Tour ↗</button>
     </div>
-    <div class="form-group">
-      <label class="form-label">Difficulty</label>
-      <select class="form-control" [(ngModel)]="newTour.difficulty">
-        <option [value]="TourDifficulty.Easy">Easy</option>
-        <option [value]="TourDifficulty.Medium">Medium</option>
-        <option [value]="TourDifficulty.Hard">Hard</option>
-      </select>
-    </div>
-    <div class="form-group">
-      <label class="form-label">Tags</label>
-      <div class="tag-input-container">
-        <div class="tags-display">
-          <span *ngFor="let tag of newTour.tags" class="tag">
-            {{ tag }}
-            <button class="tag-remove" (click)="removeTag(tag)">×</button>
-          </span>
+
+    <div *ngIf="!isLoading && tours.length > 0 && wizardStep === 0" class="tours-grid">
+      <div *ngFor="let tour of tours" class="tour-card" (click)="selectTour(tour)">
+        <div class="tour-card-top">
+          <div class="tour-badges">
+            <span class="badge" [ngClass]="getDifficultyClass(tour.difficulty)">{{ tour.difficulty }}</span>
+            <span class="badge" [ngClass]="getStatusClass(tour.status)">{{ tour.status }}</span>
+          </div>
+          <h3 class="tour-name">{{ tour.name }}</h3>
+          <p class="tour-description">{{ tour.description }}</p>
         </div>
-        <div class="tag-input-row">
-          <input class="form-control tag-input" type="text" [(ngModel)]="tagInput"
-                 placeholder="Add tag and press Enter"
-                 (keydown)="onTagKeydown($event)" />
-          <button class="btn-secondary" (click)="addTag()">Add</button>
+        <div class="tour-card-bottom">
+          <div class="tour-tags">
+            <span *ngFor="let tag of tour.tags" class="tag-chip">{{ tag }}</span>
+          </div>
+          <div class="tour-meta">
+            <span *ngIf="tour.lengthKm" class="meta-item">
+              <span class="meta-icon">📍</span> {{ tour.lengthKm }} km
+            </span>
+            <span class="meta-item">
+              <span class="meta-icon price-icon">◈</span>
+              <strong>{{ tour.price === 0 ? 'Free' : tour.price + ' RSD' }}</strong>
+            </span>
+            <span *ngIf="tour.keyPoints" class="meta-item">
+              <span class="meta-icon">🚩</span> {{ tour.keyPoints.length }} stops
+            </span>
+          </div>
+          <div class="card-cta">View Details ↗</div>
         </div>
       </div>
-    </div>
-    <div class="form-info">
-      <span class="info-icon">ℹ</span>
-      Tour will be created with <strong>Draft</strong> status and price set to <strong>0</strong>.
-    </div>
-    <div class="form-actions">
-      <button class="btn-ghost" (click)="toggleCreateForm()">Cancel</button>
-      <button class="btn-primary" (click)="createTour()" [disabled]="isLoading">
-        {{ isLoading ? 'Creating...' : 'Create Tour' }}
-      </button>
     </div>
   </div>
 
-  <div *ngIf="isLoading && !showCreateForm" class="loading-state">
-    <div class="spinner"></div>
-    <p>Loading your tours...</p>
-  </div>
+  <div *ngIf="wizardStep > 0" class="wizard-overlay">
+    <div class="wizard-modal" [class.wizard-wide]="wizardStep === 2">
 
-  <div *ngIf="!isLoading && tours.length === 0 && !showCreateForm" class="empty-state">
-    <div class="empty-icon">🗺️</div>
-    <h3>No tours yet</h3>
-    <p *ngIf="isGuide">Create your first tour and start sharing your adventures!</p>
-    <p *ngIf="!isGuide">No tours available at the moment.</p>
-    <button *ngIf="isGuide" class="btn-primary" (click)="toggleCreateForm()">Create Your First Tour</button>
-  </div>
+      <div class="wizard-header">
+        <div class="wizard-steps">
+          <div class="wizard-step" [class.active]="wizardStep >= 1" [class.done]="wizardStep > 1">
+            <div class="step-dot">{{ wizardStep > 1 ? '✓' : '1' }}</div>
+            <span>Tour Details</span>
+          </div>
+          <div class="step-line" [class.done]="wizardStep > 1"></div>
+          <div class="wizard-step" [class.active]="wizardStep === 2">
+            <div class="step-dot">2</div>
+            <span>Key Points</span>
+          </div>
+        </div>
+        <button class="modal-close" (click)="closeWizard()">✕</button>
+      </div>
 
-  <div *ngIf="!isLoading && tours.length > 0" class="tours-grid">
-    <div *ngFor="let tour of tours" class="tour-card" (click)="selectTour(tour)">
-      <div class="tour-card-header">
-        <h3 class="tour-name">{{ tour.name }}</h3>
-        <div class="tour-badges">
-          <span class="badge" [ngClass]="getDifficultyClass(tour.difficulty)">{{ tour.difficulty }}</span>
-          <span class="badge" [ngClass]="getStatusClass(tour.status)">{{ tour.status }}</span>
+      <div *ngIf="errorMessage && wizardStep > 0" class="wizard-error">{{ errorMessage }}</div>
+
+      <div *ngIf="wizardStep === 1" class="wizard-body">
+        <div class="wizard-title-block">
+          <div class="create-card-label">✦ Step 1 of 2</div>
+          <h2 class="create-card-title">Craft Your Experience</h2>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Tour Name <span class="required">*</span></label>
+            <input class="form-control" type="text" [(ngModel)]="newTour.name" placeholder="Enter tour name" />
+          </div>
+          <div class="form-group">
+            <label class="form-label">Difficulty</label>
+            <select class="form-control" [(ngModel)]="newTour.difficulty">
+              <option [value]="TourDifficulty.Easy">Easy</option>
+              <option [value]="TourDifficulty.Medium">Medium</option>
+              <option [value]="TourDifficulty.Hard">Hard</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Description <span class="required">*</span></label>
+          <textarea class="form-control" rows="4" [(ngModel)]="newTour.description" placeholder="Describe your tour..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Tags</label>
+          <div class="tag-input-container">
+            <div class="tags-display">
+              <span *ngFor="let tag of newTour.tags" class="tag-pill">
+                {{ tag }}
+                <button class="tag-remove" (click)="removeTag(tag)">×</button>
+              </span>
+            </div>
+            <div class="tag-input-row">
+              <input class="form-control tag-input" type="text" [(ngModel)]="tagInput"
+                     placeholder="Add tag and press Enter"
+                     (keydown)="onTagKeydown($event)" />
+              <button class="btn-outline-dark" (click)="addTag()">Add</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-notice">
+          <span class="notice-icon">ℹ</span>
+          Tour will be saved as <strong>Draft</strong>. You'll add key points in the next step.
+        </div>
+
+        <div class="form-actions">
+          <button class="btn-ghost" (click)="closeWizard()">Cancel</button>
+          <button class="btn-gold" (click)="createTourAndProceed()" [disabled]="isLoading">
+            {{ isLoading ? 'Creating...' : 'Next: Add Key Points →' }}
+          </button>
         </div>
       </div>
-      <p class="tour-description">{{ tour.description }}</p>
-      <div class="tour-tags">
-        <span *ngFor="let tag of tour.tags" class="tag-chip">{{ tag }}</span>
-      </div>
-      <div class="tour-meta">
-        <span *ngIf="tour.lengthKm" class="meta-item">
-          <span class="meta-icon">📍</span> {{ tour.lengthKm }} km
-        </span>
-        <span class="meta-item">
-          <span class="meta-icon">💰</span> {{ tour.price === 0 ? 'Free' : tour.price + ' RSD' }}
-        </span>
-        <span *ngIf="tour.keyPoints" class="meta-item">
-          <span class="meta-icon">🚩</span> {{ tour.keyPoints.length }} key points
-        </span>
+
+      <div *ngIf="wizardStep === 2" class="wizard-body wizard-body-kp">
+
+        <div class="kp-wizard-layout">
+
+          <div class="kp-map-col">
+            <div class="wizard-title-block" style="margin-bottom: 16px;">
+              <div class="create-card-label">✦ Step 2 of 2 — {{ createdTour?.name }}</div>
+              <h2 class="create-card-title" style="font-size: clamp(22px,2.5vw,32px); margin-bottom:0;">
+                Place Your Key Points
+              </h2>
+            </div>
+
+            <div *ngIf="isSelectingOnMap" class="map-hint-gold">
+              <span>🎯</span> Click on the map to set the location
+            </div>
+
+            <div class="kp-map-wrapper">
+              <div id="tour-wizard-map"></div>
+            </div>
+          </div>
+
+          <div class="kp-sidebar-col">
+
+            <div *ngIf="showKpForm" class="kp-form-card">
+              <div class="kp-form-title">{{ editingKeyPoint ? 'Edit Key Point' : 'New Key Point' }}</div>
+
+              <div class="location-display-gold" [class.has-location]="hasKpLocation">
+                <span *ngIf="hasKpLocation">📍 {{ kpFormData.latitude?.toFixed(4) }}, {{ kpFormData.longitude?.toFixed(4) }}</span>
+                <span *ngIf="!hasKpLocation" class="no-location">No location selected</span>
+                <button class="btn-pick-map" (click)="startSelectingOnMap()">
+                  {{ hasKpLocation ? 'Change' : 'Pick on Map' }}
+                </button>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Name <span class="required">*</span></label>
+                <input class="form-control" type="text" [(ngModel)]="kpFormData.name" placeholder="e.g. Kalemegdan Fortress" />
+              </div>
+              <div class="form-group">
+                <label class="form-label">Description</label>
+                <textarea class="form-control" rows="2" [(ngModel)]="kpFormData.description" placeholder="Describe this stop..."></textarea>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Image URL</label>
+                <input class="form-control" type="url" [(ngModel)]="kpFormData.imageUrl" placeholder="https://..." />
+              </div>
+
+              <div class="form-actions">
+                <button class="btn-ghost" (click)="cancelKpForm()">Cancel</button>
+                <button class="btn-gold" (click)="saveKeyPoint()" [disabled]="isLoading">
+                  {{ isLoading ? 'Saving...' : (editingKeyPoint ? 'Update' : 'Add') }}
+                </button>
+              </div>
+            </div>
+
+            <div *ngIf="!showKpForm" class="kp-add-actions">
+              <button class="btn-gold" (click)="openKpCreateForm()">
+                <span class="btn-icon">+</span> New Key Point
+              </button>
+              <button class="btn-ghost" (click)="startSelectingOnMap()">
+                📍 Pick on Map First
+              </button>
+            </div>
+
+            <div class="kp-list">
+              <div class="kp-list-header">
+                Key Points <span class="kp-count">{{ keyPoints.length }}</span>
+              </div>
+
+              <div *ngIf="keyPoints.length === 0" class="kp-empty">
+                No key points yet — add your first stop above.
+              </div>
+
+              <div *ngFor="let kp of keyPoints; let i = index" class="kp-item">
+                <div class="kp-index">{{ i + 1 }}</div>
+                <div class="kp-info">
+                  <div class="kp-name">{{ kp.name }}</div>
+                  <div class="kp-coords">{{ kp.latitude.toFixed(4) }}°, {{ kp.longitude.toFixed(4) }}°</div>
+                  <div *ngIf="kp.description" class="kp-desc">{{ kp.description }}</div>
+                  <img *ngIf="kp.imageUrl" [src]="kp.imageUrl" alt="{{ kp.name }}" class="kp-thumb" />
+                </div>
+                <div class="kp-actions">
+                  <button class="kp-btn-icon" (click)="openKpEditForm(kp)" title="Edit">✏️</button>
+                  <button class="kp-btn-icon" (click)="deleteKeyPoint(kp)" title="Delete">🗑️</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="wizard-finish-row">
+              <button class="btn-gold" (click)="finishWizard()" [disabled]="keyPoints.length === 0" [title]="keyPoints.length === 0 ? 'Add at least one key point' : ''">
+                Finish & View Tours ✓
+              </button>
+            </div>
+
+          </div>
+        </div>
       </div>
     </div>
   </div>
 
   <div *ngIf="selectedTour" class="modal-overlay" (click)="closeDetail()">
     <div class="modal-content" (click)="$event.stopPropagation()">
-      <div class="modal-header">
-        <h2>{{ selectedTour.name }}</h2>
-        <button class="modal-close" (click)="closeDetail()">✕</button>
-      </div>
-      <div class="modal-body">
-        <div class="detail-badges">
+      <button class="modal-close" (click)="closeDetail()">✕</button>
+      <div class="modal-top">
+        <div class="modal-label">✦ Tour Details</div>
+        <h2 class="modal-title">{{ selectedTour.name }}</h2>
+        <div class="modal-badges">
           <span class="badge" [ngClass]="getDifficultyClass(selectedTour.difficulty)">{{ selectedTour.difficulty }}</span>
           <span class="badge" [ngClass]="getStatusClass(selectedTour.status)">{{ selectedTour.status }}</span>
         </div>
-        <p class="detail-description">{{ selectedTour.description }}</p>
-        <div class="detail-tags">
+      </div>
+      <div class="modal-body">
+        <p class="modal-description">{{ selectedTour.description }}</p>
+        <div class="modal-tags">
           <span *ngFor="let tag of selectedTour.tags" class="tag-chip">{{ tag }}</span>
         </div>
-        <div class="detail-meta-grid">
-          <div class="detail-meta-item">
+        <div class="modal-meta-grid">
+          <div class="modal-meta-item">
             <span class="meta-label">Price</span>
-            <span class="meta-value">{{ selectedTour.price === 0 ? 'Free' : selectedTour.price + ' RSD' }}</span>
+            <span class="meta-value gold">{{ selectedTour.price === 0 ? 'Free' : selectedTour.price + ' RSD' }}</span>
           </div>
-          <div *ngIf="selectedTour.lengthKm" class="detail-meta-item">
+          <div *ngIf="selectedTour.lengthKm" class="modal-meta-item">
             <span class="meta-label">Length</span>
             <span class="meta-value">{{ selectedTour.lengthKm }} km</span>
           </div>
-          <div *ngIf="selectedTour.keyPoints" class="detail-meta-item">
+          <div *ngIf="selectedTour.keyPoints && selectedTour.keyPoints.length > 0" class="modal-meta-item">
             <span class="meta-label">Key Points</span>
             <span class="meta-value">{{ selectedTour.keyPoints!.length }}</span>
           </div>
@@ -132,4 +292,5 @@
       </div>
     </div>
   </div>
+
 </div>
