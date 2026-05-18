@@ -1,0 +1,1 @@
+﻿import bcrypt; print(bcrypt.hashpw(b'admin123', bcrypt.gensalt(rounds=10)).decode())

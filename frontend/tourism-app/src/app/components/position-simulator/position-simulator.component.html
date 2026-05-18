@@ -1,0 +1,166 @@
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <a routerLink="/" class="logo">✈ Traavellio</a>
+  <div class="nav-links">
+    <ng-container *ngIf="isLoggedIn">
+      <a routerLink="/blog" class="nav-link">Blogs</a>
+      <a routerLink="/tours" class="nav-link">Tours</a>
+      <a routerLink="/feed" class="nav-link">Feed</a>
+    </ng-container>
+    <a routerLink="/profile" class="nav-link">Profile</a>
+    <a routerLink="/simulator" class="nav-link" style="color: var(--gold) !important;">⊙ Simulator</a>
+    <ng-container *ngIf="!isLoggedIn">
+      <a routerLink="/login" class="nav-cta">Sign In →</a>
+    </ng-container>
+    <ng-container *ngIf="isLoggedIn">
+      <a (click)="signOut()" class="nav-cta" style="cursor:pointer;">Sign Out →</a>
+    </ng-container>
+  </div>
+</nav>
+
+<div class="simulator-page">
+
+  <div class="sim-hero">
+    <div class="sim-hero-bg">
+      <img
+        src="https://images.unsplash.com/photo-1521295121783-8a321d551ad2?w=1800&q=80"
+        alt="Position Simulator"
+        class="sim-hero-img"
+      />
+      <div class="sim-hero-overlay"></div>
+    </div>
+    <div class="sim-hero-content">
+      <div class="section-label">✦ Position Simulator</div>
+      <h1 class="sim-hero-title">Place Yourself<br><em>on the Map</em></h1>
+      <p class="sim-hero-sub">Simulate your location for Tour Execution</p>
+    </div>
+  </div>
+
+  <div class="sim-body">
+
+    <div *ngIf="successMessage" class="alert alert-success">
+      <span class="alert-icon">✓</span> {{ successMessage }}
+    </div>
+    <div *ngIf="errorMessage" class="alert alert-error">
+      <span class="alert-icon">✕</span> {{ errorMessage }}
+    </div>
+
+    <div class="sim-layout">
+
+      <div class="sim-panel">
+
+        <div class="how-card">
+          <div class="how-card-label">✦ How it works</div>
+          <h2 class="how-card-title">Set Your<br>Position</h2>
+          <div class="how-steps">
+            <div class="how-step">
+              <div class="how-step-num">1</div>
+              <div class="how-step-text">Click anywhere on the map to place your simulated position.</div>
+            </div>
+            <div class="how-step">
+              <div class="how-step-num">2</div>
+              <div class="how-step-text">Your position is saved and used automatically during Tour Execution.</div>
+            </div>
+            <div class="how-step">
+              <div class="how-step-num">3</div>
+              <div class="how-step-text">Use <strong style="font-weight:500;color:#111">Use GPS</strong> to snap to your real-world location instantly.</div>
+            </div>
+            <div class="how-step">
+              <div class="how-step-num">4</div>
+              <div class="how-step-text">Position persists across pages for the entire session.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pos-card" [class.has-pos]="currentPosition">
+          <div class="pos-card-label">Current Position</div>
+          <div class="pos-status-row">
+            <div class="pos-dot-live"></div>
+            <span class="pos-status-text">{{ currentPosition ? 'Position active' : 'No position set' }}</span>
+          </div>
+          <div *ngIf="currentPosition" class="pos-coords-grid">
+            <div class="coord-block">
+              <div class="coord-label">Latitude</div>
+              <div class="coord-value">{{ currentPosition.lat.toFixed(6) }}</div>
+            </div>
+            <div class="coord-block">
+              <div class="coord-label">Longitude</div>
+              <div class="coord-value">{{ currentPosition.lng.toFixed(6) }}</div>
+            </div>
+          </div>
+          <div *ngIf="!currentPosition" class="pos-empty-hint">
+            Click on the map to set your location
+          </div>
+        </div>
+
+        <div class="sim-actions">
+          <button class="btn-gold" (click)="useGPSPosition()" [disabled]="isSelectingViaGPS">
+            <span>⊙</span> {{ isSelectingViaGPS ? 'Acquiring...' : 'Use GPS' }}
+          </button>
+          <button *ngIf="currentPosition" class="btn-ghost" (click)="clearPosition()">
+            ✕ Clear Position
+          </button>
+        </div>
+
+        <div class="hint-strip">
+          <span class="hint-strip-icon">✦</span>
+          <span>Click anywhere on the map to set or update your simulated position in real time.</span>
+        </div>
+
+      </div>
+
+      <div class="map-section">
+        <div class="map-topbar">
+          <div>
+            <div class="map-topbar-title">Interactive Map</div>
+            <div class="map-topbar-sub">{{ currentPosition ? 'Position active — click to move' : 'Click to place your position' }}</div>
+          </div>
+          <div *ngIf="isSelectingViaGPS" class="map-selecting-badge">
+            ⊙ Acquiring GPS...
+          </div>
+          <div *ngIf="currentPosition && !isSelectingViaGPS" class="map-active-badge">
+            ⊙ Active
+          </div>
+        </div>
+        <div class="map-wrapper">
+          <div id="simulator-map"></div>
+          <div class="map-crosshair-overlay">
+            <div class="crosshair" [class.active]="!currentPosition"></div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <span class="logo">✈ Traavellio</span>
+        <p>Curated journeys designed to be felt, not rushed.</p>
+      </div>
+      <div class="footer-cols">
+        <div class="footer-col">
+          <h5>Pages</h5>
+          <a routerLink="/">Home</a>
+          <a routerLink="/tours">Tours</a>
+          <a routerLink="/simulator">Simulator</a>
+        </div>
+        <div class="footer-col">
+          <h5>Account</h5>
+          <ng-container *ngIf="!isLoggedIn">
+            <a routerLink="/login">Sign In</a>
+            <a routerLink="/register">Register</a>
+          </ng-container>
+          <ng-container *ngIf="isLoggedIn">
+            <a (click)="signOut()" style="cursor:pointer;">Sign Out</a>
+          </ng-container>
+          <a routerLink="/profile">Profile</a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2025 Traavellio. All rights reserved.</span>
+    </div>
+  </footer>
+
+</div>
