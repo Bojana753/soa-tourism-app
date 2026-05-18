@@ -11,3 +11,7 @@ spring:
 logging:
   level:
     org.springframework.data.mongodb: INFO
+
+follower:
+  service:
+    url: ${FOLLOWER_SERVICE_URL:http://follower-service:8083}

@@ -39,10 +39,10 @@ func main() {
 	mux.HandleFunc("/follow/", server.follow)
 	mux.HandleFunc("/feed", server.feed)
 	mux.HandleFunc("/recommendations", server.recommendations)
+	mux.HandleFunc("/following", server.following)
 
-	handler := cors(mux)
 	log.Printf("Follower service started on :%s", cfg.Port)
-	log.Fatal(http.ListenAndServe(":"+cfg.Port, handler))
+log.Fatal(http.ListenAndServe(":"+cfg.Port, mux))
 }
 
 func (s *Server) health(w http.ResponseWriter, _ *http.Request) {
@@ -308,11 +308,26 @@ func asInt(value any) int {
 	}
 }
 
-func cors(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Access-Control-Allow-Origin", "*")
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, OPTIONS")
-		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, X-User-Id")
-		next.ServeHTTP(w, r)
-	})
+func (s *Server) following(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodOptions {
+		w.WriteHeader(http.StatusOK)
+		return
+	}
+	if r.Method != http.MethodGet {
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+		return
+	}
+
+	currentUserID, ok := currentUser(r)
+	if !ok {
+		http.Error(w, "Unauthorized", http.StatusUnauthorized)
+		return
+	}
+
+	ids, err := s.followedUserIDs(currentUserID)
+	if err != nil {
+		http.Error(w, "Could not load following", http.StatusBadGateway)
+		return
+	}
+	writeJSON(w, http.StatusOK, ids)
 }

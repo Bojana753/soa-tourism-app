@@ -1,5 +1,6 @@
 import { Component, OnInit, HostListener, ViewEncapsulation } from '@angular/core';
 import { Router } from '@angular/router';
+import { TourService } from '../../services/tour.service';
 
 @Component({
   selector: 'app-home',
@@ -14,6 +15,8 @@ export class HomeComponent implements OnInit {
   isLoggedIn = false;
   activeImage: string = '';
   activeIndex = 0;
+  reviews: any[] = [];
+  activeReviewIndex = 0;
 
   destinations = [
     { name: 'Japan', tagline: 'Technology, vibrant nightlife & traditions', image: 'https://images.unsplash.com/photo-1528360983277-13d401cdc186?w=1200&q=80' },
@@ -36,11 +39,44 @@ export class HomeComponent implements OnInit {
     { icon: '◎', title: 'Cultural Immersion', desc: 'Engage with local traditions and communities.', image: 'https://images.unsplash.com/photo-1533050487297-09b450131914?w=800&q=80' },
   ];
 
-  constructor(private router: Router) {}
+  constructor(private router: Router, private tourService: TourService) {}
 
   ngOnInit(): void {
     this.isLoggedIn = !!localStorage.getItem('token');
     this.activeImage = this.whyUs[0].image;
+    this.loadReviews();
+  }
+
+  loadReviews(): void {
+    [1, 2, 3, 4, 5].forEach(tourId => {
+      this.tourService.getReviews(tourId).subscribe({
+        next: (reviews: any[]) => {
+          const mapped = reviews.map(r => ({
+            ...r,
+            touristName: r.touristUsername || 'Anonymous Tourist',
+            images: r.images || []
+          }));
+          this.reviews = [...this.reviews, ...mapped].slice(0, 10);
+        },
+        error: () => {}
+      });
+    });
+  }
+
+  getStars(rating: number): string {
+    return '★'.repeat(rating) + '☆'.repeat(5 - rating);
+  }
+
+  prevReview(): void {
+    this.activeReviewIndex = this.activeReviewIndex > 0
+      ? this.activeReviewIndex - 1
+      : this.reviews.length - 1;
+  }
+
+  nextReview(): void {
+    this.activeReviewIndex = this.activeReviewIndex < this.reviews.length - 1
+      ? this.activeReviewIndex + 1
+      : 0;
   }
 
   setActive(i: number) {
@@ -58,4 +94,29 @@ export class HomeComponent implements OnInit {
   onScroll() {
     this.isScrolled = window.scrollY > 60;
   }
+
+  expandedReviews: Set<number> = new Set();
+
+toggleReviewExpand(index: number): void {
+  if (this.expandedReviews.has(index)) {
+    this.expandedReviews.delete(index);
+  } else {
+    this.expandedReviews.add(index);
+  }
+}
+
+getComment(comment: string, index: number): string {
+  if (this.expandedReviews.has(index) || comment.length <= 150) {
+    return comment;
+  }
+  return comment.substring(0, 150).trimEnd() + '...';
+}
+
+isLongComment(comment: string): boolean {
+  return comment.length > 150;
+}
+
+scrollToTop(): void {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
 }

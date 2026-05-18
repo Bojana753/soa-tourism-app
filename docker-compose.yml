@@ -17,6 +17,8 @@ services:
       POSTGRES_PASSWORD: root
     ports:
       - "5433:5432"
+    volumes:
+      - stakeholders_pg_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
@@ -36,8 +38,10 @@ services:
       - "8082:8082"
     environment:
       MONGODB_URI: mongodb://blog-mongodb:27017/blogdb
+      FOLLOWER_SERVICE_URL: http://follower-service:8083
     depends_on:
       - blog-mongodb
+      - follower-service
 
   follower-neo4j:
     image: neo4j:5-community
@@ -64,7 +68,34 @@ services:
       JWT_SECRET: super-secret-key-123
     depends_on:
       - follower-neo4j
-      - blog-service
+
+  tour-service:
+    build: ./tour-service
+    ports:
+      - "8084:8084"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://tour-db:5432/tourdb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+    depends_on:
+      tour-db:
+        condition: service_healthy
+
+  tour-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: tourdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5434:5432"
+    volumes:
+      - tour_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   frontend:
     build: ./frontend/tourism-app
@@ -82,11 +113,15 @@ services:
     depends_on:
       - stakeholders-service
       - blog-service
+      - follower-service
+      - tour-service
 
 volumes:
   blog_mongo_data:
   follower_neo4j_data:
   follower_neo4j_logs:
+  stakeholders_pg_data:
+  tour_pg_data:
 
 networks:
   default:
