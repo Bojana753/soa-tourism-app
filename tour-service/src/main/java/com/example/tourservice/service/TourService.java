@@ -22,7 +22,6 @@ public class TourService {
     private final ReviewRepository reviewRepository;
     private final TourDurationRepository durationRepository;
 
-    // ── TOUR CRUD ─────────────────────────────────────────────────────────────
 
     @Transactional
     public TourResponse createTour(CreateTourRequest req) {
@@ -112,7 +111,6 @@ public class TourService {
         tourRepository.delete(findTour(id));
     }
 
-    // ── KEY POINTS ────────────────────────────────────────────────────────────
 
     @Transactional
     public KeyPointResponse addKeyPoint(Long tourId, CreateKeyPointRequest req) {
@@ -127,7 +125,6 @@ public class TourService {
         kp.setTour(tour);
         KeyPoint saved = keyPointRepository.save(kp);
 
-        // Recalculate tour length after adding key point
         recalculateTourLength(tourId);
 
         return toKeyPointResponse(saved);
@@ -167,7 +164,6 @@ public class TourService {
                 .stream().map(this::toKeyPointResponse).collect(Collectors.toList());
     }
 
-    // ── REVIEWS ───────────────────────────────────────────────────────────────
 
     @Transactional
     public ReviewResponse addReview(Long tourId, CreateReviewRequest req) {
@@ -191,7 +187,6 @@ public class TourService {
                 .stream().map(this::toReviewResponse).collect(Collectors.toList());
     }
 
-    // ── DURATIONS ─────────────────────────────────────────────────────────────
 
     @Transactional
     public TourDurationResponse addDuration(Long tourId, CreateDurationRequest req) {
@@ -203,7 +198,6 @@ public class TourService {
         return toDurationResponse(durationRepository.save(duration));
     }
 
-    // ── HELPERS ───────────────────────────────────────────────────────────────
 
     private void recalculateTourLength(Long tourId) {
         List<KeyPoint> points = keyPointRepository.findByTourIdOrderByOrderIndex(tourId);
@@ -236,8 +230,6 @@ public class TourService {
         return tourRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Tour not found with id: " + id));
     }
-
-    // ── MAPPERS ───────────────────────────────────────────────────────────────
 
     private TourResponse toResponse(Tour tour) {
         TourResponse r = new TourResponse();

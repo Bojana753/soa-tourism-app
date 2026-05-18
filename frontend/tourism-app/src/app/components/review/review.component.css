@@ -1,6 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Jost:wght@300;400;500;600&display=swap');
 
-/* ─── Fixed Background ───────────────────────────────────── */
 .review-page::before {
   content: '';
   position: fixed;
@@ -25,7 +24,6 @@
   z-index: -1;
 }
 
-/* ─── Page Shell ─────────────────────────────────────────── */
 .review-page {
   min-height: 100vh;
   background: transparent;
@@ -34,7 +32,6 @@
   position: relative;
 }
 
-/* ─── Hero Section ───────────────────────────────────────── */
 .hero-section {
   position: relative;
   min-height: 100vh;
@@ -92,7 +89,6 @@
   font-style: italic;
 }
 
-/* ─── Rating Pill ────────────────────────────────────────── */
 .rating-pill {
   display: inline-flex;
   align-items: center;
@@ -137,7 +133,6 @@
   letter-spacing: 0.05em;
 }
 
-/* ─── Write Review CTA ───────────────────────────────────── */
 .hero-cta {
   animation: heroFadeIn 1.4s ease 0.4s both;
 }
@@ -176,14 +171,12 @@
   background: rgba(255,255,255,0.22);
 }
 
-/* ─── Reviews Section ────────────────────────────────────── */
 .reviews-section {
   position: relative;
   background: transparent;
   padding: 0 1.5rem 5rem;
 }
 
-/* ─── Alerts ─────────────────────────────────────────────── */
 .alert {
   max-width: 760px;
   margin: 0 auto 1.5rem;
@@ -205,7 +198,6 @@
   color: #f09090;
 }
 
-/* ─── Write Review Form Card ─────────────────────────────── */
 .form-card {
   max-width: 760px;
   margin: 0 auto 3rem;
@@ -270,7 +262,6 @@
 
 textarea.form-control { resize: vertical; min-height: 100px; }
 
-/* ─── Star Picker ────────────────────────────────────────── */
 .star-picker {
   display: flex;
   align-items: center;
@@ -302,7 +293,6 @@ textarea.form-control { resize: vertical; min-height: 100px; }
   margin-left: 0.5rem;
 }
 
-/* ─── Image Input ────────────────────────────────────────── */
 .image-input-row {
   display: flex;
   gap: 0.5rem;
@@ -346,7 +336,6 @@ textarea.form-control { resize: vertical; min-height: 100px; }
   justify-content: center;
 }
 
-/* ─── Form Actions ───────────────────────────────────────── */
 .form-actions {
   display: flex;
   justify-content: flex-end;
@@ -406,7 +395,6 @@ textarea.form-control { resize: vertical; min-height: 100px; }
 
 .btn-secondary:hover { background: rgba(212, 168, 66, 0.3); }
 
-/* ─── Reviews List ───────────────────────────────────────── */
 .reviews-list {
   max-width: 760px;
   margin: 0 auto;
@@ -511,7 +499,6 @@ textarea.form-control { resize: vertical; min-height: 100px; }
   margin-left: 0.2rem;
 }
 
-/* ─── Quote Comment ──────────────────────────────────────── */
 .review-comment {
   font-family: 'Cormorant Garamond', serif;
   font-size: 1.25rem;
@@ -554,7 +541,6 @@ textarea.form-control { resize: vertical; min-height: 100px; }
   color: rgba(240, 236, 228, 0.3);
 }
 
-/* ─── Empty State ────────────────────────────────────────── */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -581,7 +567,6 @@ textarea.form-control { resize: vertical; min-height: 100px; }
   margin-bottom: 1.5rem;
   font-weight: 300;
 }
-/* ─── Navbar ─────────────────────────────────────────────── */
 .navbar {
   position: fixed;
   top: 0;

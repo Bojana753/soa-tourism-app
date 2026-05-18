@@ -51,8 +51,9 @@ func main() {
 	r.PathPrefix("/feed").HandlerFunc(proxyHandler("http://follower-service:8083"))
 	r.PathPrefix("/recommendations").HandlerFunc(proxyHandler("http://follower-service:8083"))
 	r.PathPrefix("/following").HandlerFunc(proxyHandler("http://follower-service:8083"))
-	r.PathPrefix("/api/tours").HandlerFunc(proxyHandler("http://tour-service:8083"))
-	r.PathPrefix("/api/position").HandlerFunc(proxyHandler("http://tour-service:8083"))
+
+	r.PathPrefix("/api/tours").HandlerFunc(proxyHandler("http://tour-service:8084"))
+	r.PathPrefix("/api/position").HandlerFunc(proxyHandler("http://tour-service:8084"))
 
 	fmt.Println("API Gateway started on :8080")
 	http.ListenAndServe(":8080", r)

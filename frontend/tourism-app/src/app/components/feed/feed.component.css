@@ -245,7 +245,6 @@
   color: white;
 }
 
-/* Recommendations Grid */
 .recommendations-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -333,7 +332,6 @@
   background: #444;
 }
 
-/* Empty and Loading States */
 .loading,
 .empty-state {
   text-align: center;

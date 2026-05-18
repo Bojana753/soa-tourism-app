@@ -17,7 +17,7 @@ public class Review {
     private Long id;
 
     @Column(nullable = false)
-    private int rating; // 1-5
+    private int rating; 
 
     @Column(columnDefinition = "TEXT")
     private String comment;

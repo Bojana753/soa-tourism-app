@@ -949,7 +949,6 @@ app-home {
 
 .read-more-btn:hover { opacity: 0.7; }
 
-/* ── Reviews CTA Card (dodaj u home.component.css) ────────── */
 .reviews-cta-card {
   display: flex;
   align-items: center;

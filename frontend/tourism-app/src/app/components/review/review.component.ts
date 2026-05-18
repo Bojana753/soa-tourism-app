@@ -28,7 +28,6 @@ export class ReviewComponent implements OnInit {
   hoveredStar = 0;
   imageUrlInput = '';
 
-  // ── Navbar ──────────────────────────────────────────────
   isScrolled = false;
   isLoggedIn = false;
 
@@ -40,14 +39,33 @@ export class ReviewComponent implements OnInit {
     this.isLoggedIn = false;
     this.router.navigate(['/login']);
   }
-  // ────────────────────────────────────────────────────────
 
-  constructor(private route: ActivatedRoute, private tourService: TourService, private router: Router) {}
+  constructor(
+    private route: ActivatedRoute,
+    private tourService: TourService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.isLoggedIn = !!localStorage.getItem('token');
     this.tourId = Number(this.route.snapshot.paramMap.get('id') || 1);
     this.loadData();
+  }
+
+  private getTokenPayload(): any {
+    const token = localStorage.getItem('token');
+    if (!token) return null;
+    try {
+      return JSON.parse(atob(token.split('.')[1]));
+    } catch { return null; }
+  }
+
+  getTouristId(): number {
+    return this.getTokenPayload()?.id || 0;
+  }
+
+  getTouristUsername(): string {
+    return this.getTokenPayload()?.username || `user_${this.getTouristId()}`;
   }
 
   loadData(): void {
@@ -95,8 +113,14 @@ export class ReviewComponent implements OnInit {
     if (!this.newReview.comment.trim()) { this.errorMessage = 'Comment is required.'; return; }
     if (!this.newReview.visitDate) { this.errorMessage = 'Please enter the visit date.'; return; }
 
+    const payload = {
+      ...this.newReview,
+      touristId: this.getTouristId(),
+      touristUsername: this.getTouristUsername()
+    };
+
     this.isLoading = true;
-    this.tourService.addReview(this.tourId, this.newReview).subscribe({
+    this.tourService.addReview(this.tourId, payload).subscribe({
       next: (review: any) => {
         this.reviews.unshift({
           ...review,

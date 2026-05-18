@@ -13,7 +13,6 @@
   <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
   <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
 
-  <!-- Create Tour Form -->
   <div *ngIf="showCreateForm && isGuide" class="card form-card">
     <h2 class="card-title">New Tour</h2>
     <div class="form-group">
@@ -61,13 +60,11 @@
     </div>
   </div>
 
-  <!-- Loading -->
   <div *ngIf="isLoading && !showCreateForm" class="loading-state">
     <div class="spinner"></div>
     <p>Loading your tours...</p>
   </div>
 
-  <!-- Empty state -->
   <div *ngIf="!isLoading && tours.length === 0 && !showCreateForm" class="empty-state">
     <div class="empty-icon">🗺️</div>
     <h3>No tours yet</h3>
@@ -76,7 +73,6 @@
     <button *ngIf="isGuide" class="btn-primary" (click)="toggleCreateForm()">Create Your First Tour</button>
   </div>
 
-  <!-- Tours Grid -->
   <div *ngIf="!isLoading && tours.length > 0" class="tours-grid">
     <div *ngFor="let tour of tours" class="tour-card" (click)="selectTour(tour)">
       <div class="tour-card-header">
@@ -104,7 +100,6 @@
     </div>
   </div>
 
-  <!-- Tour Detail Modal -->
   <div *ngIf="selectedTour" class="modal-overlay" (click)="closeDetail()">
     <div class="modal-content" (click)="$event.stopPropagation()">
       <div class="modal-header">

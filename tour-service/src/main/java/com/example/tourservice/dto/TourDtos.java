@@ -10,7 +10,6 @@ import java.util.List;
 
 public class TourDtos {
 
-    // ── TOUR ─────────────────────────────────────────────────────────────────
 
     @Data
     public static class CreateTourRequest {
@@ -51,7 +50,6 @@ public class TourDtos {
         private List<ReviewResponse> reviews;
     }
 
-    // ── KEY POINT ────────────────────────────────────────────────────────────
 
     @Data
     public static class CreateKeyPointRequest {
@@ -87,7 +85,6 @@ public class TourDtos {
         private int orderIndex;
     }
 
-    // ── REVIEW ───────────────────────────────────────────────────────────────
 
     @Data
     public static class CreateReviewRequest {
@@ -114,7 +111,6 @@ public class TourDtos {
         private List<String> images;
     }
 
-    // ── DURATION ─────────────────────────────────────────────────────────────
 
     @Data
     public static class CreateDurationRequest {
@@ -131,7 +127,6 @@ public class TourDtos {
         private int minutes;
     }
 
-    // ── POSITION SIMULATOR ───────────────────────────────────────────────────
 
     @Data
     public static class UpdatePositionRequest {

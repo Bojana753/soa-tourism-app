@@ -18,8 +18,6 @@ public class TourController {
 
     private final TourService tourService;
 
-    // ── TOURS ─────────────────────────────────────────────────────────────────
-
     @PostMapping
     public ResponseEntity<TourResponse> createTour(@Valid @RequestBody CreateTourRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tourService.createTour(req));
@@ -67,7 +65,6 @@ public class TourController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── KEY POINTS ────────────────────────────────────────────────────────────
 
     @PostMapping("/{tourId}/keypoints")
     public ResponseEntity<KeyPointResponse> addKeyPoint(@PathVariable Long tourId,
@@ -94,7 +91,6 @@ public class TourController {
         return ResponseEntity.noContent().build();
     }
 
-    // ── REVIEWS ───────────────────────────────────────────────────────────────
 
     @PostMapping("/{tourId}/reviews")
     public ResponseEntity<ReviewResponse> addReview(@PathVariable Long tourId,
@@ -107,7 +103,6 @@ public class TourController {
         return ResponseEntity.ok(tourService.getReviewsForTour(tourId));
     }
 
-    // ── DURATIONS ─────────────────────────────────────────────────────────────
 
     @PostMapping("/{tourId}/durations")
     public ResponseEntity<TourDurationResponse> addDuration(@PathVariable Long tourId,

@@ -18,7 +18,7 @@ export class PositionSimulatorComponent implements OnInit, AfterViewInit, OnDest
   constructor(private positionService: PositionService) {}
 
 ngOnInit(): void {
-  this.positionService.loadPositionFromBackend(); // učitaj sa servera
+  this.positionService.loadPositionFromBackend(); 
   this.positionService.position$.subscribe(pos => {
     this.currentPosition = pos;
   });

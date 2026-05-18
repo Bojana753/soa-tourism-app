@@ -30,14 +30,17 @@ public class BlogService {
     private final BlogPostRepository blogPostRepository;
     private final CommentRepository commentRepository;
     private final BlogLikeRepository blogLikeRepository;
+    private final FollowerClient followerClient;
 
     public BlogService(
             BlogPostRepository blogPostRepository,
             CommentRepository commentRepository,
-            BlogLikeRepository blogLikeRepository) {
+            BlogLikeRepository blogLikeRepository,
+            FollowerClient followerClient) {
         this.blogPostRepository = blogPostRepository;
         this.commentRepository = commentRepository;
         this.blogLikeRepository = blogLikeRepository;
+        this.followerClient = followerClient;
     }
 
     public BlogResponse createPost(String authorUserId, CreateBlogRequest req) {
@@ -71,7 +74,18 @@ public class BlogService {
     }
 
     public CommentResponse addComment(String blogId, String authorUserId, CreateCommentRequest req) {
-        requireBlog(blogId);
+        BlogPost post = blogPostRepository.findById(blogId)
+                .orElseThrow(() -> new NotFoundException("Blog not found."));
+
+        // Autor može komentarisati sopstveni blog
+        // Ostali moraju pratiti autora
+        if (!authorUserId.equals(post.getAuthorUserId())) {
+            boolean isFollowing = followerClient.isFollowing(authorUserId, post.getAuthorUserId());
+            if (!isFollowing) {
+                throw new ForbiddenException("You must follow the author to comment on their blog.");
+            }
+        }
+
         Instant now = Instant.now();
         Comment c = new Comment();
         c.setBlogPostId(blogId);
