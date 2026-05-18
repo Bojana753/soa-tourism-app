@@ -4,7 +4,7 @@
       <h1 class="page-title">My Tours</h1>
       <p class="page-subtitle">Manage and create your travel experiences</p>
     </div>
-    <button class="btn-primary" (click)="toggleCreateForm()">
+    <button class="btn-primary" *ngIf="isGuide" (click)="toggleCreateForm()">
       <span class="btn-icon">{{ showCreateForm ? '✕' : '+' }}</span>
       {{ showCreateForm ? 'Cancel' : 'Create Tour' }}
     </button>
@@ -14,7 +14,7 @@
   <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
 
   <!-- Create Tour Form -->
-  <div *ngIf="showCreateForm" class="card form-card">
+  <div *ngIf="showCreateForm && isGuide" class="card form-card">
     <h2 class="card-title">New Tour</h2>
     <div class="form-group">
       <label class="form-label">Tour Name *</label>
@@ -71,8 +71,9 @@
   <div *ngIf="!isLoading && tours.length === 0 && !showCreateForm" class="empty-state">
     <div class="empty-icon">🗺️</div>
     <h3>No tours yet</h3>
-    <p>Create your first tour and start sharing your adventures!</p>
-    <button class="btn-primary" (click)="toggleCreateForm()">Create Your First Tour</button>
+    <p *ngIf="isGuide">Create your first tour and start sharing your adventures!</p>
+    <p *ngIf="!isGuide">No tours available at the moment.</p>
+    <button *ngIf="isGuide" class="btn-primary" (click)="toggleCreateForm()">Create Your First Tour</button>
   </div>
 
   <!-- Tours Grid -->

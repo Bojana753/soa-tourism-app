@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { Component, OnInit, HostListener } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Review, Tour } from '../tours/tour.model';
 import { TourService } from '../../services/tour.service';
 
@@ -28,9 +28,24 @@ export class ReviewComponent implements OnInit {
   hoveredStar = 0;
   imageUrlInput = '';
 
-  constructor(private route: ActivatedRoute, private tourService: TourService) {}
+  // ── Navbar ──────────────────────────────────────────────
+  isScrolled = false;
+  isLoggedIn = false;
+
+  @HostListener('window:scroll')
+  onScroll(): void { this.isScrolled = window.scrollY > 60; }
+
+  signOut(): void {
+    localStorage.removeItem('token');
+    this.isLoggedIn = false;
+    this.router.navigate(['/login']);
+  }
+  // ────────────────────────────────────────────────────────
+
+  constructor(private route: ActivatedRoute, private tourService: TourService, private router: Router) {}
 
   ngOnInit(): void {
+    this.isLoggedIn = !!localStorage.getItem('token');
     this.tourId = Number(this.route.snapshot.paramMap.get('id') || 1);
     this.loadData();
   }

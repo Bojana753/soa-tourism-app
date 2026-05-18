@@ -124,4 +124,17 @@ loadMyTours(): void {
       default: return '';
     }
   }
+
+  getUserRole(): string {
+  const token = localStorage.getItem('token');
+  if (!token) return '';
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.role || '';
+  } catch { return ''; }
+}
+
+get isGuide(): boolean {
+  return this.getUserRole() === 'guide';
+}
 }

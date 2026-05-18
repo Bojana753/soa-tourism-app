@@ -846,3 +846,187 @@ app-home {
     transform: translateX(-50%);
   }
 }
+
+.testi-avatar-letter {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #fff;
+  font: 600 22px/1 var(--serif);
+  text-align: center;
+  border: 2px solid var(--gold);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.testi-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
+}
+
+.testi-btn {
+  background: none;
+  border: 1.5px solid #ddd;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  font-size: 16px;
+  cursor: pointer;
+  color: #555;
+  font-family: var(--sans);
+  transition: all 0.2s;
+}
+
+.testi-btn:hover { background: #111; color: #fff; border-color: #111; }
+
+.testi-dots { display: flex; gap: 6px; align-items: center; }
+
+.testi-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #ddd;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.testi-dot.active { background: var(--gold); }
+
+.testi-card blockquote {
+  font: 300 24px/1.6 var(--serif);
+  font-style: italic;
+  color: #222;
+  margin-bottom: 32px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  white-space: pre-wrap;
+  max-width: 680px;
+  overflow: hidden;
+}
+
+.testi-card {
+  max-width: 680px;
+  margin: 0 auto;
+  overflow: hidden;
+  word-wrap: break-word;
+}
+
+.testi-card blockquote {
+  font: 300 24px/1.6 var(--serif);
+  font-style: italic;
+  color: #222;
+  margin-bottom: 32px;
+  word-break: break-word;
+  overflow-wrap: break-word;
+  max-width: 680px;
+}
+
+.testi-card {
+  max-width: 680px;
+  margin: 0 auto;
+  word-wrap: break-word;
+}
+
+.read-more-btn {
+  display: inline-block;
+  margin-left: 6px;
+  background: none;
+  border: none;
+  color: var(--gold);
+  font: 500 14px/1 var(--sans);
+  cursor: pointer;
+  font-style: normal;
+  letter-spacing: 0.5px;
+  padding: 0;
+  transition: opacity 0.2s;
+}
+
+.read-more-btn:hover { opacity: 0.7; }
+
+/* ── Reviews CTA Card (dodaj u home.component.css) ────────── */
+.reviews-cta-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  max-width: 480px;
+  margin: 2.5rem auto 0;
+  padding: 1.4rem 1.8rem;
+  background: #faf8f4;
+  border: 1px solid #e8e0d0;
+  border-radius: 16px;
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  cursor: pointer;
+}
+
+.reviews-cta-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
+  border-color: #c9a96e;
+}
+
+.reviews-cta-left {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.reviews-cta-stars {
+  display: flex;
+  gap: 0.15rem;
+  margin-bottom: 0.1rem;
+}
+
+.reviews-cta-star {
+  color: #c9a96e;
+  font-size: 1rem;
+}
+
+.reviews-cta-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 0;
+  letter-spacing: 0.01em;
+}
+
+.reviews-cta-sub {
+  font-size: 0.78rem;
+  color: #9a8f82;
+  margin: 0;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+}
+
+.reviews-cta-right {
+  width: 25px;
+  height: 25px;
+  background: #1a1a1a;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.reviews-cta-card:hover .reviews-cta-right {
+  background: #c9a96e;
+  transform: rotate(45deg);
+}
+
+.reviews-cta-arrow {
+  color: #fff;
+  font-size: 1.1rem;
+  line-height: 1;
+  display: block;
+  transition: transform 0.2s;
+}
