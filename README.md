@@ -37,13 +37,5 @@ docker-compose up --build
 | Name | GitHub |
 |---|---|
 | Bojana Milošević| [@Bojana753](https://github.com/Bojana753) |
-| Member 2 | @username |
+| Nemanja Kovavačević | [@nk1204](https://github.com/nk1204) |
 
-## Milestones
-
-| | Deadline | Scope |
-|---|---|---|
-| KT1 | 18.04. | REST services, Dockerization |
-| KT2 | 18.05. | NoSQL, Follower service, API Gateway |
-| KT3 | 01.06. | RPC, SAGA pattern |
-| KT4 | 15.06. | Tracing, logging, monitoring |
