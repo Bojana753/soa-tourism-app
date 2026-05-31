@@ -11,6 +11,7 @@ import { TourComponent } from './components/tours/tour.component';
 import { KeypointComponent } from './components/keypoint/keypoint.component';
 import { ReviewComponent } from './components/review/review.component';
 import { PositionSimulatorComponent } from './components/position-simulator/position-simulator.component';
+import { TourExecutionComponent } from './components/tour-execution/tour-execution.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -24,6 +25,7 @@ const routes: Routes = [
   { path: 'tours/:id/keypoints', component: KeypointComponent },
   { path: 'tours/:id/reviews', component: ReviewComponent },
   { path: 'position-simulator', component: PositionSimulatorComponent },
+  { path: 'tour-execution/:id', component: TourExecutionComponent },
 ];
 
 @NgModule({

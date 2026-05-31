@@ -51,7 +51,7 @@ export class PositionService {
     this.http.get<{ latitude: number, longitude: number }>(`${this.apiUrl}/${touristId}`)
       .subscribe({
         next: (res) => {
-          if (res?.latitude && res?.longitude) {
+          if (res?.latitude !== undefined && res?.longitude !== undefined) {
             const pos = { lat: res.latitude, lng: res.longitude };
             localStorage.setItem(this.positionKey, JSON.stringify(pos));
             this.positionSubject.next(pos);

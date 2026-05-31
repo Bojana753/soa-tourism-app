@@ -289,6 +289,13 @@
             <span class="meta-value">{{ selectedTour.keyPoints!.length }}</span>
           </div>
         </div>
+        <button
+          *ngIf="!isGuide && selectedTour.id"
+          class="btn-gold"
+          (click)="startTour(selectedTour)"
+          [disabled]="isLoading">
+          {{ isLoading ? 'Starting...' : 'Start Tour' }}
+        </button>
       </div>
     </div>
   </div>

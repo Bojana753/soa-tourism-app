@@ -2,6 +2,7 @@ import { Component, OnInit, OnDestroy, AfterViewChecked, HostListener } from '@a
 import { Router } from '@angular/router';
 import { Tour, TourDifficulty, TourStatus, TourCreateDto, KeyPoint } from './tour.model';
 import { TourService } from '../../services/tour.service';
+import { ExecutionService } from '../../services/execution.service';
 
 declare const L: any;
 
@@ -52,7 +53,11 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
   private routePolyline: any;
   private tempMarker: any;
 
-  constructor(private tourService: TourService, private router: Router) {}
+  constructor(
+    private tourService: TourService,
+    private executionService: ExecutionService,
+    private router: Router
+  ) {}
 
   ngOnInit(): void {
     this.isLoggedIn = !!localStorage.getItem('token');
@@ -87,9 +92,29 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   loadMyTours(): void {
     this.isLoading = true;
-    this.tourService.getMyTours().subscribe({
+    const toursRequest = this.isGuide
+      ? this.tourService.getMyTours()
+      : this.tourService.getPublishedTours();
+    toursRequest.subscribe({
       next: (tours) => { this.tours = tours; this.isLoading = false; },
       error: () => { this.errorMessage = 'Failed to load tours.'; this.isLoading = false; }
+    });
+  }
+
+  startTour(tour: Tour): void {
+    if (!tour.id) return;
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.executionService.startTour(tour.id).subscribe({
+      next: execution => {
+        this.isLoading = false;
+        this.closeDetail();
+        this.router.navigate(['/tour-execution', execution.id]);
+      },
+      error: error => {
+        this.isLoading = false;
+        this.errorMessage = error?.error?.error || 'Could not start the tour. Confirm that it has been purchased.';
+      }
     });
   }
 
