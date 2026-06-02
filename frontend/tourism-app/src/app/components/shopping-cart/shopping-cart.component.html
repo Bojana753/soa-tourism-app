@@ -1,0 +1,233 @@
+<nav class="navbar" [class.scrolled]="isScrolled">
+  <a routerLink="/" class="logo">✈ Traavellio</a>
+  <div class="nav-links">
+    <ng-container *ngIf="isLoggedIn">
+      <a routerLink="/blog" class="nav-link">Blogs</a>
+      <a routerLink="/feed" class="nav-link">Feed</a>
+    </ng-container>
+    <a routerLink="/cart" class="nav-link nav-cart-link">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="8" cy="21" r="1"/><circle cx="19" cy="21" r="1"/>
+        <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+      </svg>
+      Cart
+    </a>
+    <a routerLink="/tours" class="nav-link">Tours</a>
+    <a routerLink="/profile" class="nav-link">Profile</a>
+    <a routerLink="/position-simulator" class="nav-link" style="color: var(--gold) !important;">⊙ Simulator</a>
+    <ng-container *ngIf="!isLoggedIn">
+      <a routerLink="/login" class="nav-cta">Sign In →</a>
+    </ng-container>
+    <ng-container *ngIf="isLoggedIn">
+      <a (click)="signOut()" class="nav-cta" style="cursor:pointer;">Sign Out →</a>
+    </ng-container>
+  </div>
+</nav>
+
+<div class="cart-page">
+
+  <!-- CINEMATIC HERO -->
+  <div class="cart-hero">
+    <div class="cart-hero-bg">
+      <img src="https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=1800&q=80" alt="Cart" class="cart-hero-img" />
+      <div class="cart-hero-overlay"></div>
+      <div class="cart-hero-grain"></div>
+    </div>
+    <div class="hero-floating-orb orb-1"></div>
+    <div class="hero-floating-orb orb-2"></div>
+    <div class="cart-hero-content">
+      <div class="section-label">✦ Your Selection</div>
+      <h1 class="cart-hero-title">Shopping<br><em>Cart</em></h1>
+      <p class="cart-hero-sub">Review and complete your journey bookings</p>
+    </div>
+    <div class="hero-stat-strip" *ngIf="cart?.items?.length > 0">
+      <div class="hero-stat">
+        <span class="hero-stat-num">{{ cart.items.length }}</span>
+        <span class="hero-stat-label">Tours Selected</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">{{ cart.totalPrice === 0 ? 'Free' : cart.totalPrice }}</span>
+        <span class="hero-stat-label">Total</span>
+      </div>
+      <div class="hero-stat-divider"></div>
+      <div class="hero-stat">
+        <span class="hero-stat-num">{{ tokens.length }}</span>
+        <span class="hero-stat-label">Purchased</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cart-body">
+
+    <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+    <div *ngIf="errorMessage" class="alert alert-error">{{ errorMessage }}</div>
+
+    <div *ngIf="isLoading" class="loading-state">
+      <div class="spinner"></div>
+      <p>Loading your cart...</p>
+    </div>
+
+    <div *ngIf="!isLoading && cart">
+
+      <!-- EMPTY STATE -->
+      <div *ngIf="cart.items?.length === 0" class="empty-state">
+        <div class="empty-compass">
+          <svg viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="40" cy="40" r="36" stroke="#e8d5a3" stroke-width="1.5"/>
+            <circle cx="40" cy="40" r="28" stroke="#e8d5a3" stroke-width="1"/>
+            <path d="M40 16 L44 36 L40 40 L36 36 Z" fill="#c9a96e"/>
+            <path d="M40 64 L36 44 L40 40 L44 44 Z" fill="#e8d5a3"/>
+            <circle cx="40" cy="40" r="3" fill="#c9a96e"/>
+          </svg>
+        </div>
+        <h3>Your cart awaits</h3>
+        <p>Discover extraordinary tours and craft your perfect journey.</p>
+        <a routerLink="/tours" class="btn-gold">Explore Tours ↗</a>
+      </div>
+
+      <!-- CART LAYOUT -->
+      <div *ngIf="cart.items?.length > 0" class="cart-layout">
+
+        <div class="cart-items-col">
+          <div class="col-label">✦ Selected Tours</div>
+
+          <div class="cart-items">
+            <div *ngFor="let item of cart.items; let i = index"
+                 class="cart-ticket"
+                 [style.animation-delay]="(i * 80) + 'ms'">
+              <div class="ticket-left">
+                <div class="ticket-number">{{ i + 1 | number:'2.0' }}</div>
+              </div>
+              <div class="ticket-perforation">
+                <div class="perf-dot" *ngFor="let d of [1,2,3,4,5,6,7,8,9,10]"></div>
+              </div>
+              <div class="ticket-body">
+                <div class="ticket-top">
+                  <div>
+                    <div class="ticket-label">TOUR</div>
+                    <h3 class="ticket-name">{{ item.tourName }}</h3>
+                  </div>
+                  <button class="btn-remove" (click)="removeItem(item.tourId)" title="Remove">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="ticket-bottom">
+                  <div class="ticket-meta">
+                    <span class="ticket-meta-item">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+                      Awaiting checkout
+                    </span>
+                  </div>
+                  <div class="ticket-price">
+                    {{ item.price === 0 ? 'FREE' : item.price + ' RSD' }}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ORDER SUMMARY -->
+        <div class="cart-summary-col">
+          <div class="col-label">✦ Order Summary</div>
+          <div class="cart-summary-card">
+            <div class="summary-visual">
+              <div class="summary-ring">
+                <svg viewBox="0 0 120 120" class="ring-svg">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#f0ece4" stroke-width="8"/>
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#c9a96e" stroke-width="8"
+                    stroke-dasharray="314"
+                    [attr.stroke-dashoffset]="cart.totalPrice === 0 ? 0 : 80"
+                    stroke-linecap="round"
+                    transform="rotate(-90 60 60)"/>
+                </svg>
+                <div class="ring-center">
+                  <span class="ring-count">{{ cart.items.length }}</span>
+                  <span class="ring-label">tours</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="summary-rows">
+              <div class="summary-row" *ngFor="let item of cart.items">
+                <span class="summary-row-name">{{ item.tourName }}</span>
+                <span class="summary-row-price">{{ item.price === 0 ? 'Free' : item.price + ' RSD' }}</span>
+              </div>
+            </div>
+
+            <div class="summary-divider"></div>
+
+            <div class="summary-total-row">
+              <span class="summary-total-label">Total</span>
+              <strong class="summary-total-value">{{ cart.totalPrice === 0 ? 'Free' : cart.totalPrice + ' RSD' }}</strong>
+            </div>
+
+            <button class="btn-checkout" (click)="checkout()" [disabled]="isLoading">
+              <span *ngIf="!isLoading">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                Checkout
+              </span>
+              <span *ngIf="isLoading" class="checkout-loading">
+                <span class="checkout-dot"></span>
+                <span class="checkout-dot"></span>
+                <span class="checkout-dot"></span>
+              </span>
+            </button>
+
+            <p class="summary-note">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              Each tour unlocks all key points after purchase
+            </p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- PURCHASED TOURS — Netflix row -->
+    <div class="purchased-section" *ngIf="tokens.length > 0 || showTokens">
+      <div class="purchased-header">
+        <div class="purchased-header-left">
+          <div class="col-label" style="margin-bottom:0">✦ My Journeys</div>
+          <span class="purchased-count-pill">{{ tokens.length }} purchased</span>
+        </div>
+        <button class="btn-toggle-purchased" (click)="showTokens = !showTokens">
+          {{ showTokens ? 'Hide' : 'Show all' }}
+          <span class="toggle-arrow">{{ showTokens ? '↑' : '↓' }}</span>
+        </button>
+      </div>
+
+      <div *ngIf="showTokens" class="tokens-scroll-row">
+        <div *ngIf="tokens.length === 0" class="tokens-empty">
+          No purchased tours yet.
+        </div>
+        <div *ngFor="let token of tokens; let i = index"
+             class="token-card"
+             [style.animation-delay]="(i * 60) + 'ms'">
+          <div class="token-card-inner">
+            <div class="token-card-top">
+              <span class="token-check">✓</span>
+              <span class="token-badge">Purchased</span>
+            </div>
+            <div class="token-name">{{ token.tourName }}</div>
+            <div class="token-date">{{ token.purchasedAt | date:'MMM d, y' }}</div>
+          </div>
+          <div class="token-card-shine"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="purchased-section" *ngIf="tokens.length === 0 && !showTokens">
+      <button class="btn-toggle-purchased" (click)="showTokens = !showTokens">
+        <span>My Purchased Tours</span>
+        <span class="purchased-count-pill">{{ tokens.length }}</span>
+        <span class="toggle-arrow">↓</span>
+      </button>
+      <div *ngIf="showTokens" class="tokens-empty">No purchased tours yet.</div>
+    </div>
+
+  </div>
+</div>

@@ -54,4 +54,5 @@ export interface TourCreateDto {
   description: string;
   difficulty: TourDifficulty;
   tags: string[];
+  durations: { transportType: string; minutes: number }[];
 }

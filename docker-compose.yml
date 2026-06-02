@@ -73,6 +73,7 @@ services:
     build: ./tour-service
     ports:
       - "8084:8084"
+      - "9090:9090"
     environment:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://tour-db:5432/tourdb
       - SPRING_DATASOURCE_USERNAME=postgres
@@ -97,6 +98,37 @@ services:
       timeout: 5s
       retries: 5
 
+  purchase-service:
+    build: ./purchase-service
+    ports:
+      - "8085:8085"
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://purchase-db:5432/purchasedb
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - TOUR_SERVICE_URL=http://tour-service:8084
+    depends_on:
+      purchase-db:
+        condition: service_healthy
+      tour-service:
+        condition: service_started
+
+  purchase-db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: purchasedb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5435:5432"
+    volumes:
+      - purchase_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
   frontend:
     build: ./frontend/tourism-app
     ports:
@@ -115,6 +147,7 @@ services:
       - blog-service
       - follower-service
       - tour-service
+      - purchase-service
 
 volumes:
   blog_mongo_data:
@@ -122,6 +155,7 @@ volumes:
   follower_neo4j_logs:
   stakeholders_pg_data:
   tour_pg_data:
+  purchase_pg_data:
 
 networks:
   default:

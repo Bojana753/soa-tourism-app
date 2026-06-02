@@ -33,22 +33,35 @@ public class TourService {
         tour.setAuthorId(req.getAuthorId());
         tour.setStatus(Tour.TourStatus.DRAFT);
         tour.setPrice(0.0);
-        return toResponse(tourRepository.save(tour));
+        Tour saved = tourRepository.save(tour);
+        if (req.getDurations() != null) {
+            for (CreateDurationRequest d : req.getDurations()) {
+                TourDuration duration = new TourDuration();
+                duration.setTransportType(d.getTransportType());
+                duration.setMinutes(d.getMinutes());
+                duration.setTour(saved);
+                durationRepository.save(duration);
+            }
+        }
+        return toResponse(saved);
     }
 
     public TourResponse getTour(Long id) {
         return toResponse(findTour(id));
     }
 
+    @Transactional(readOnly = true)
     public List<TourResponse> getToursByAuthor(Long authorId) {
         return tourRepository.findByAuthorId(authorId)
                 .stream().map(this::toResponse).collect(Collectors.toList());
     }
 
-    public List<TourResponse> getPublishedTours() {
-        return tourRepository.findByStatus(Tour.TourStatus.PUBLISHED)
-                .stream().map(this::toResponse).collect(Collectors.toList());
-    }
+@Transactional(readOnly = true)
+public List<TourResponse> getPublishedTours() {
+    List<Tour> tours = tourRepository.findByStatus(Tour.TourStatus.PUBLISHED);
+    if (tours == null) return List.of();
+    return tours.stream().map(this::toPublicResponse).collect(Collectors.toList());
+}
 
     @Transactional
     public TourResponse updateTour(Long id, UpdateTourRequest req) {
@@ -75,8 +88,10 @@ public class TourService {
         if (tour.getKeyPoints().size() < 2) {
             throw new ValidationException("Tour must have at least 2 key points to be published.");
         }
-        if (durationRepository.findByTourId(id).isEmpty()) {
-            throw new ValidationException("Tour must have at least one duration (transport type + minutes).");
+
+        List<TourDuration> durations = durationRepository.findByTourId(id);
+        if (durations.isEmpty()) {
+            throw new ValidationException("Tour must have at least one transport duration to be published.");
         }
 
         tour.setStatus(Tour.TourStatus.PUBLISHED);
@@ -182,6 +197,7 @@ public class TourService {
         return toReviewResponse(reviewRepository.save(review));
     }
 
+    @Transactional(readOnly = true)
     public List<ReviewResponse> getReviewsForTour(Long tourId) {
         return reviewRepository.findByTourId(tourId)
                 .stream().map(this::toReviewResponse).collect(Collectors.toList());
@@ -231,25 +247,60 @@ public class TourService {
                 .orElseThrow(() -> new NotFoundException("Tour not found with id: " + id));
     }
 
-    private TourResponse toResponse(Tour tour) {
-        TourResponse r = new TourResponse();
-        r.setId(tour.getId());
-        r.setName(tour.getName());
-        r.setDescription(tour.getDescription());
-        r.setDifficulty(tour.getDifficulty());
-        r.setTags(tour.getTags());
-        r.setStatus(tour.getStatus());
-        r.setPrice(tour.getPrice());
-        r.setAuthorId(tour.getAuthorId());
-        r.setLengthKm(tour.getLengthKm());
-        r.setPublishedAt(tour.getPublishedAt());
-        r.setArchivedAt(tour.getArchivedAt());
-        r.setCreatedAt(tour.getCreatedAt());
-        r.setKeyPoints(tour.getKeyPoints().stream().map(this::toKeyPointResponse).collect(Collectors.toList()));
-        r.setDurations(durationRepository.findByTourId(tour.getId()).stream().map(this::toDurationResponse).collect(Collectors.toList()));
-        r.setReviews(tour.getReviews().stream().map(this::toReviewResponse).collect(Collectors.toList()));
-        return r;
+private TourResponse toResponse(Tour tour) {
+    TourResponse r = new TourResponse();
+    r.setId(tour.getId());
+    r.setName(tour.getName());
+    r.setDescription(tour.getDescription());
+    r.setDifficulty(tour.getDifficulty());
+    r.setTags(tour.getTags() != null ? tour.getTags() : List.of());
+    r.setStatus(tour.getStatus());
+    r.setPrice(tour.getPrice());
+    r.setAuthorId(tour.getAuthorId());
+    r.setLengthKm(tour.getLengthKm());
+    r.setPublishedAt(tour.getPublishedAt());
+    r.setArchivedAt(tour.getArchivedAt());
+    r.setCreatedAt(tour.getCreatedAt());
+    r.setKeyPoints(tour.getKeyPoints() != null 
+        ? tour.getKeyPoints().stream().map(this::toKeyPointResponse).collect(Collectors.toList())
+        : List.of());
+    r.setDurations(durationRepository.findByTourId(tour.getId()) != null
+        ? durationRepository.findByTourId(tour.getId()).stream().map(this::toDurationResponse).collect(Collectors.toList())
+        : List.of());
+    r.setReviews(tour.getReviews() != null
+        ? tour.getReviews().stream().map(this::toReviewResponse).collect(Collectors.toList())
+        : List.of());
+    return r;
+}
+
+private TourResponse toPublicResponse(Tour tour) {
+    TourResponse r = new TourResponse();
+    r.setId(tour.getId());
+    r.setName(tour.getName());
+    r.setDescription(tour.getDescription());
+    r.setDifficulty(tour.getDifficulty());
+    r.setTags(tour.getTags() != null ? tour.getTags() : List.of());
+    r.setStatus(tour.getStatus());
+    r.setPrice(tour.getPrice());
+    r.setAuthorId(tour.getAuthorId());
+    r.setLengthKm(tour.getLengthKm());
+    r.setPublishedAt(tour.getPublishedAt());
+    r.setCreatedAt(tour.getCreatedAt());
+    r.setDurations(durationRepository.findByTourId(tour.getId())
+            .stream().map(this::toDurationResponse).collect(Collectors.toList()));
+    r.setReviews(tour.getReviews() != null
+            ? tour.getReviews().stream().map(this::toReviewResponse).collect(Collectors.toList())
+            : List.of());
+
+    if (tour.getKeyPoints() != null) {
+        tour.getKeyPoints().stream()
+                .min(java.util.Comparator.comparingInt(KeyPoint::getOrderIndex))
+                .ifPresent(kp -> r.setKeyPoints(List.of(toKeyPointResponse(kp))));
     }
+    if (r.getKeyPoints() == null) r.setKeyPoints(List.of());
+
+    return r;
+}
 
     private KeyPointResponse toKeyPointResponse(KeyPoint kp) {
         KeyPointResponse r = new KeyPointResponse();
