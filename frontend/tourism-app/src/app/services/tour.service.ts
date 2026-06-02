@@ -11,17 +11,23 @@ export class TourService {
 
   constructor(private http: HttpClient) {}
 
-  private getUserId(): number {
-    const user = localStorage.getItem('user');
-    if (user) { try { return JSON.parse(user).id; } catch {} }
-    return 1;
-  }
+private getUserId(): number {
+  const token = localStorage.getItem('token');
+  if (!token) return 0;
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.id || 0;
+  } catch { return 0; }
+}
 
-  private getUsername(): string {
-    const user = localStorage.getItem('user');
-    if (user) { try { return JSON.parse(user).username; } catch {} }
-    return 'Tourist';
-  }
+private getUsername(): string {
+  const token = localStorage.getItem('token');
+  if (!token) return 'Tourist';
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    return payload.username || 'Tourist';
+  } catch { return 'Tourist'; }
+}
 
   getMyTours(): Observable<Tour[]> {
     return this.http.get<Tour[]>(`${this.apiUrl}/author/${this.getUserId()}`);
@@ -35,13 +41,14 @@ export class TourService {
     return this.http.get<Tour[]>(`${this.apiUrl}/published`);
   }
 
-  createTour(dto: TourCreateDto): Observable<Tour> {
+createTour(dto: TourCreateDto): Observable<Tour> {
     return this.http.post<Tour>(this.apiUrl, {
       name: dto.name,
       description: dto.description,
       difficulty: dto.difficulty.toUpperCase(),
       tags: dto.tags,
-      authorId: this.getUserId()
+      authorId: this.getUserId(),
+      durations: dto.durations || []
     });
   }
 
@@ -97,4 +104,16 @@ export class TourService {
       images: review.images || []
     });
   }
+
+  publishTour(id: number): Observable<Tour> {
+  return this.http.put<Tour>(`${this.apiUrl}/${id}/publish`, {});
+}
+
+archiveTour(id: number): Observable<Tour> {
+  return this.http.put<Tour>(`${this.apiUrl}/${id}/archive`, {});
+}
+
+reactivateTour(id: number): Observable<Tour> {
+  return this.http.put<Tour>(`${this.apiUrl}/${id}/reactivate`, {});
+}
 }

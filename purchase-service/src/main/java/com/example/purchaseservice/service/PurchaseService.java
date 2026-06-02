@@ -33,6 +33,9 @@ public class PurchaseService {
     @Transactional
     public CartResponse addToCart(AddToCartRequest req) {
         validateTourIsPublished(req.getTourId());
+        if (tokenRepository.existsByTouristIdAndTourId(req.getTouristId(), req.getTourId())) {
+    throw new ValidationException("You have already purchased this tour.");
+}
 
         ShoppingCart cart = cartRepository.findByTouristId(req.getTouristId())
                 .orElseGet(() -> {
@@ -76,7 +79,6 @@ public class PurchaseService {
         return toCartResponse(cart);
     }
 
-
     @Transactional
     public CheckoutResponse checkout(Long touristId) {
         ShoppingCart cart = findCart(touristId);
@@ -104,10 +106,6 @@ public class PurchaseService {
             }
         }
 
-        cart.getItems().removeAll(failedItems);
-        recalculateTotal(cart);
-        cartRepository.save(cart);
-
         CheckoutResponse response = new CheckoutResponse();
         response.setTokens(tokens);
         if (!failedItems.isEmpty()) {
@@ -117,9 +115,12 @@ public class PurchaseService {
             response.setMessage("Checkout successful! You can now start your tours.");
         }
 
+        cart.getItems().clear();
+        cart.setTotalPrice(0.0);
+        cartRepository.save(cart);
+
         return response;
     }
-
 
     public PurchaseCheckResponse checkPurchase(Long touristId, Long tourId) {
         PurchaseCheckResponse response = new PurchaseCheckResponse();
@@ -133,7 +134,6 @@ public class PurchaseService {
         return tokenRepository.findByTouristId(touristId)
                 .stream().map(this::toTokenResponse).collect(Collectors.toList());
     }
-
 
     private void validateTourIsPublished(Long tourId) {
         try {
@@ -150,7 +150,6 @@ public class PurchaseService {
             throw new ValidationException("Could not validate tour availability. Please try again.");
         }
     }
-
 
     private void recalculateTotal(ShoppingCart cart) {
         double total = cart.getItems().stream()
