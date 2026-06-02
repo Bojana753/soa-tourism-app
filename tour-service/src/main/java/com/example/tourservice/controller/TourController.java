@@ -7,6 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import java.util.Map;
+
 
 import java.util.List;
 
@@ -109,4 +111,11 @@ public class TourController {
                                                              @Valid @RequestBody CreateDurationRequest req) {
         return ResponseEntity.status(HttpStatus.CREATED).body(tourService.addDuration(tourId, req));
     }
+
+    @GetMapping("/{id}/status")
+    public ResponseEntity<Map<String, String>> getTourStatus(@PathVariable Long id) {
+        TourResponse tour = tourService.getTour(id);
+        return ResponseEntity.ok(Map.of("status", tour.getStatus().toString()));
+    }
+ 
 }
