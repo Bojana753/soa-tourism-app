@@ -29,6 +29,11 @@ export class PositionService {
     if (user) {
       try { return JSON.parse(user).id; } catch {}
     }
+
+    const token = localStorage.getItem('token');
+    if (token) {
+      try { return JSON.parse(atob(token.split('.')[1])).id; } catch {}
+    }
     return 1; // fallback za testiranje
   }
 

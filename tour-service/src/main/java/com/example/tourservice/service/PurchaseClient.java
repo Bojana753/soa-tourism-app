@@ -23,7 +23,7 @@ public class PurchaseClient {
         try {
             PurchaseOwnershipResponse response = restClient.get()
                     .uri(uriBuilder -> uriBuilder
-                            .path("/api/purchases/ownership")
+                            .path("/api/purchase/check")
                             .queryParam("touristId", touristId)
                             .queryParam("tourId", tourId)
                             .build())

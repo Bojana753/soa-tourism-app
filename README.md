@@ -10,7 +10,7 @@
 | `blog-service` | Blogs, comments, likes | Java | MongoDB |
 | `follower-service` | User following, recommendations | Go | Neo4j |
 | `tour-service` | Tours, key points, reviews, execution | Java | PostgreSQL |
-| `purchase-service` | Shopping cart, tokens, checkout | Node.js | MongoDB |
+| `purchase-service` | Shopping cart, tokens, checkout | Java | PostgreSQL |
 | `api-gateway` | Request routing, auth middleware | Go | — |
 | `frontend` | Web client | Angular | — |
 
@@ -50,7 +50,7 @@ Before a session is created, `tour-service` verifies ownership with
 `purchase-service`. The purchase service must expose:
 
 ```http
-GET /api/purchases/ownership?touristId=1&tourId=1
+GET /api/purchase/check?touristId=1&tourId=1
 
 {
   "purchased": true
