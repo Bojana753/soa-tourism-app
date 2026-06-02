@@ -13,6 +13,8 @@ import (
 	"strconv"
 	"time"
 
+	tourgrpc "api-gateway/generated/tour"
+
 	"github.com/gorilla/mux"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -90,6 +92,114 @@ func proximityHandler(client executiongrpc.ExecutionServiceClient) http.HandlerF
 	}
 }
 
+type KeyPointJSON struct {
+	Id          int64   `json:"id"`
+	Name        string  `json:"name"`
+	Description string  `json:"description"`
+	Latitude    float64 `json:"latitude"`
+	Longitude   float64 `json:"longitude"`
+	ImageUrl    string  `json:"imageUrl"`
+	OrderIndex  int32   `json:"orderIndex"`
+}
+
+type DurationJSON struct {
+	Id            int64  `json:"id"`
+	TransportType string `json:"transportType"`
+	Minutes       int32  `json:"minutes"`
+}
+
+type TourJSON struct {
+	Id          int64          `json:"id"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Difficulty  string         `json:"difficulty"`
+	Tags        []string       `json:"tags"`
+	Status      string         `json:"status"`
+	Price       float64        `json:"price"`
+	AuthorId    int64          `json:"authorId"`
+	LengthKm    float64        `json:"lengthKm"`
+	PublishedAt string         `json:"publishedAt"`
+	KeyPoints   []KeyPointJSON `json:"keyPoints"`
+	Durations   []DurationJSON `json:"durations"`
+}
+
+func getPublishedToursGRPC(w http.ResponseWriter, r *http.Request) {
+	conn, err := grpc.Dial(
+		"tour-service:9090",
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithTimeout(5*time.Second),
+	)
+	if err != nil {
+		fmt.Printf("gRPC connection error: %v\n", err)
+		http.Error(w, "Failed to connect to tour-service via gRPC: "+err.Error(), http.StatusServiceUnavailable)
+		return
+	}
+	defer conn.Close()
+
+	client := tourgrpc.NewTourServiceClient(conn)
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	response, err := client.GetPublishedTours(ctx, &tourgrpc.Empty{})
+	if err != nil {
+		fmt.Printf("gRPC call error: %v\n", err)
+		http.Error(w, "gRPC call failed: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	fmt.Printf("gRPC received %d tours\n", len(response.Tours))
+
+	result := make([]TourJSON, 0)
+
+	for _, t := range response.Tours {
+		keyPoints := make([]KeyPointJSON, 0)
+		if t.FirstKeyPoint != nil {
+			keyPoints = append(keyPoints, KeyPointJSON{
+				Id:          t.FirstKeyPoint.Id,
+				Name:        t.FirstKeyPoint.Name,
+				Description: t.FirstKeyPoint.Description,
+				Latitude:    t.FirstKeyPoint.Latitude,
+				Longitude:   t.FirstKeyPoint.Longitude,
+				ImageUrl:    t.FirstKeyPoint.ImageUrl,
+				OrderIndex:  t.FirstKeyPoint.OrderIndex,
+			})
+		}
+
+		durations := make([]DurationJSON, 0)
+		for _, d := range t.Durations {
+			durations = append(durations, DurationJSON{
+				Id:            d.Id,
+				TransportType: d.TransportType,
+				Minutes:       d.Minutes,
+			})
+		}
+
+		tags := t.Tags
+		if tags == nil {
+			tags = []string{}
+		}
+
+		result = append(result, TourJSON{
+			Id:          t.Id,
+			Name:        t.Name,
+			Description: t.Description,
+			Difficulty:  t.Difficulty,
+			Tags:        tags,
+			Status:      t.Status,
+			Price:       t.Price,
+			AuthorId:    t.AuthorId,
+			LengthKm:    t.LengthKm,
+			PublishedAt: t.PublishedAt,
+			KeyPoints:   keyPoints,
+			Durations:   durations,
+		})
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(result)
+}
+
 func main() {
 	executionGrpcAddress := os.Getenv("EXECUTION_GRPC_ADDRESS")
 	if executionGrpcAddress == "" {
@@ -119,10 +229,13 @@ func main() {
 	r.PathPrefix("/recommendations").HandlerFunc(proxyHandler("http://follower-service:8083"))
 	r.PathPrefix("/following").HandlerFunc(proxyHandler("http://follower-service:8083"))
 
+	r.HandleFunc("/api/tours/published", getPublishedToursGRPC).Methods("GET")
 	r.PathPrefix("/api/tours").HandlerFunc(proxyHandler("http://tour-service:8084"))
 	r.PathPrefix("/api/position").HandlerFunc(proxyHandler("http://tour-service:8084"))
 	r.HandleFunc("/api/executions/{sessionId:[0-9]+}/proximity", proximityHandler(executionClient))
 	r.PathPrefix("/api/executions").HandlerFunc(proxyHandler("http://tour-service:8084"))
+
+	r.PathPrefix("/api/purchase").HandlerFunc(proxyHandler("http://purchase-service:8085"))
 
 	fmt.Println("API Gateway started on :8080")
 	http.ListenAndServe(":8080", r)

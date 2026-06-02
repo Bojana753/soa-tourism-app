@@ -3,6 +3,7 @@ import { Router } from '@angular/router';
 import { Tour, TourDifficulty, TourStatus, TourCreateDto, KeyPoint } from './tour.model';
 import { TourService } from '../../services/tour.service';
 import { ExecutionService } from '../../services/execution.service';
+import { PurchaseService } from '../../services/purchase.service';
 
 declare const L: any;
 
@@ -13,6 +14,9 @@ declare const L: any;
 })
 export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
   tours: Tour[] = [];
+  publishedTours: Tour[] = [];
+  activeTab: 'published' | 'my-tours' = 'published';
+
   selectedTour: Tour | null = null;
   successMessage = '';
   errorMessage = '';
@@ -23,17 +27,22 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   TourDifficulty = TourDifficulty;
   TourStatus = TourStatus;
+  purchasedTourIds: Set<number> = new Set();
 
-  wizardStep: 0 | 1 | 2 = 0; 
+
+  wizardStep: 0 | 1 | 2 = 0;
   createdTourId: number | null = null;
   createdTour: Tour | null = null;
   private wizardFinished = false;
+
+  cartTourIds: Set<number> = new Set();
 
   newTour: TourCreateDto = {
     name: '',
     description: '',
     difficulty: TourDifficulty.Easy,
-    tags: []
+    tags: [],
+    durations: []
   };
   tagInput = '';
 
@@ -56,12 +65,21 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
   constructor(
     private tourService: TourService,
     private executionService: ExecutionService,
-    private router: Router
+    private router: Router,
+    private purchaseService: PurchaseService
   ) {}
 
   ngOnInit(): void {
     this.isLoggedIn = !!localStorage.getItem('token');
-    this.loadMyTours();
+    this.loadPublishedTours();
+    if (this.isGuide) {
+      this.activeTab = 'my-tours';
+      this.loadMyTours();
+    }
+    if (this.isTourist) {
+      this.loadCartState();
+      this.loadPurchasedTours();
+    }
   }
 
   ngAfterViewChecked(): void {
@@ -90,13 +108,33 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
     this.router.navigate(['/login']);
   }
 
+  loadCartState(): void {
+    this.purchaseService.getCart().subscribe({
+      next: (cart) => {
+        if (cart?.items) {
+          this.cartTourIds = new Set(cart.items.map((item: any) => item.tourId));
+        }
+      },
+      error: () => {}
+    });
+  }
+
+  isInCart(tourId: number): boolean {
+    return this.cartTourIds.has(tourId);
+  }
+
   loadMyTours(): void {
     this.isLoading = true;
-    const toursRequest = this.isGuide
-      ? this.tourService.getMyTours()
-      : this.tourService.getPublishedTours();
-    toursRequest.subscribe({
-      next: (tours) => { this.tours = tours; this.isLoading = false; },
+    this.tourService.getMyTours().subscribe({
+      next: (tours) => {
+        this.tours = (tours || []).map(t => ({
+          ...t,
+          tags: t.tags || [],
+          keyPoints: t.keyPoints || [],
+          reviews: t.reviews || []
+        }));
+        this.isLoading = false;
+      },
       error: () => { this.errorMessage = 'Failed to load tours.'; this.isLoading = false; }
     });
   }
@@ -118,6 +156,23 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
+  loadPublishedTours(): void {
+    this.tourService.getPublishedTours().subscribe({
+      next: (tours) => {
+        this.publishedTours = (tours || []).map(t => ({
+          ...t,
+          tags: t.tags || [],
+          keyPoints: t.keyPoints || [],
+          reviews: t.reviews || []
+        }));
+      },
+      error: () => {}
+    });
+  }
+
+  setTab(tab: 'published' | 'my-tours'): void {
+    this.activeTab = tab;
+  }
 
   openWizard(): void {
     this.wizardStep = 1;
@@ -139,7 +194,6 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (this.map) { this.map.remove(); this.map = null; this.mapReady = false; }
   }
 
-
   addTag(): void {
     const tag = this.tagInput.trim();
     if (tag && !this.newTour.tags.includes(tag)) this.newTour.tags.push(tag);
@@ -159,6 +213,15 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.errorMessage = 'Name and description are required.';
       return;
     }
+    if (this.newTour.durations.length === 0) {
+      this.errorMessage = 'Please add at least one transport duration.';
+      return;
+    }
+    const invalidDuration = this.newTour.durations.some(d => !d.minutes || d.minutes < 1);
+    if (invalidDuration) {
+      this.errorMessage = 'All transport durations must have a valid number of minutes (minimum 1).';
+      return;
+    }
     this.isLoading = true;
     this.errorMessage = '';
     this.tourService.createTour(this.newTour).subscribe({
@@ -174,7 +237,6 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
       error: () => { this.errorMessage = 'Failed to create tour.'; this.isLoading = false; }
     });
   }
-
 
   private initMap(): void {
     this.map = L.map('tour-wizard-map').setView([44.8176, 20.4633], 13);
@@ -317,12 +379,13 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   finishWizard(): void {
-    if (this.keyPoints.length === 0) {
-      this.errorMessage = 'Please add at least one key point before finishing.';
+    if (this.keyPoints.length < 2) {
+      this.errorMessage = 'Please add at least 2 key points before finishing.';
       return;
     }
     this.wizardFinished = true;
     this.closeWizard();
+    this.loadMyTours();
     this.successMessage = `Tour "${this.createdTour?.name}" created with ${this.keyPoints.length} key point(s)!`;
     setTimeout(() => this.successMessage = '', 4000);
   }
@@ -331,12 +394,19 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
     return this.kpFormData.latitude !== undefined && this.kpFormData.longitude !== undefined;
   }
 
-
   selectTour(tour: Tour): void { this.selectedTour = tour; }
   closeDetail(): void { this.selectedTour = null; }
 
+  addDuration(): void {
+    this.newTour.durations.push({ transportType: 'WALKING', minutes: 60 });
+  }
+
+  removeDuration(index: number): void {
+    this.newTour.durations.splice(index, 1);
+  }
+
   resetWizard(): void {
-    this.newTour = { name: '', description: '', difficulty: TourDifficulty.Easy, tags: [] };
+    this.newTour = { name: '', description: '', difficulty: TourDifficulty.Easy, tags: [], durations: [] };
     this.tagInput = '';
     this.errorMessage = '';
     this.createdTourId = null;
@@ -377,4 +447,88 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   get isGuide(): boolean { return this.getUserRole() === 'guide'; }
+  get isTourist(): boolean { return this.getUserRole() === 'tourist'; }
+
+  publishTour(tour: Tour, event: Event): void {
+    event.stopPropagation();
+    this.errorMessage = '';
+    this.tourService.publishTour(tour.id!).subscribe({
+      next: (updated) => {
+        const idx = this.tours.findIndex(t => t.id === updated.id);
+        if (idx !== -1) this.tours[idx] = { ...updated, tags: updated.tags || [], keyPoints: updated.keyPoints || [], reviews: updated.reviews || [] };
+        this.loadPublishedTours();
+        this.successMessage = `Tour "${updated.name}" published!`;
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: (err) => {
+        const backendMsg = err?.error?.error || err?.error?.message;
+        this.errorMessage = backendMsg || 'Failed to publish tour. Make sure tour has at least 2 key points and one transport duration.';
+        setTimeout(() => this.errorMessage = '', 5000);
+      }
+    });
+  }
+
+  archiveTour(tour: Tour, event: Event): void {
+    event.stopPropagation();
+    this.tourService.archiveTour(tour.id!).subscribe({
+      next: (updated) => {
+        const idx = this.tours.findIndex(t => t.id === updated.id);
+        if (idx !== -1) this.tours[idx] = { ...updated, tags: updated.tags || [], keyPoints: updated.keyPoints || [], reviews: updated.reviews || [] };
+        this.loadPublishedTours();
+        this.successMessage = `Tour "${updated.name}" archived.`;
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: () => { this.errorMessage = 'Failed to archive tour.'; }
+    });
+  }
+
+  reactivateTour(tour: Tour, event: Event): void {
+    event.stopPropagation();
+    this.tourService.reactivateTour(tour.id!).subscribe({
+      next: (updated) => {
+        const idx = this.tours.findIndex(t => t.id === updated.id);
+        if (idx !== -1) this.tours[idx] = { ...updated, tags: updated.tags || [], keyPoints: updated.keyPoints || [], reviews: updated.reviews || [] };
+        this.loadPublishedTours();
+        this.successMessage = `Tour "${updated.name}" reactivated!`;
+        setTimeout(() => this.successMessage = '', 3000);
+      },
+      error: () => { this.errorMessage = 'Failed to reactivate tour.'; }
+    });
+  }
+
+addToCart(tour: Tour, event: Event): void {
+  event.stopPropagation();
+  if (this.isInCart(tour.id!) || this.isPurchased(tour.id!)) return;
+  this.purchaseService.addToCart(tour.id!, tour.name, tour.price).subscribe({
+    next: () => {
+      this.cartTourIds.add(tour.id!);
+      this.successMessage = `"${tour.name}" added to cart!`;
+      setTimeout(() => this.successMessage = '', 3000);
+    },
+    error: (err) => {
+      const msg = err.error?.message || err.error?.error || '';
+      if (msg.toLowerCase().includes('already in cart')) {
+        this.cartTourIds.add(tour.id!);
+      } else if (msg.toLowerCase().includes('already purchased')) {
+        this.purchasedTourIds.add(tour.id!);
+      } else {
+        this.errorMessage = msg || 'Failed to add to cart.';
+        setTimeout(() => this.errorMessage = '', 3000);
+      }
+    }
+  });
+}
+
+  loadPurchasedTours(): void {
+  this.purchaseService.getMyTokens().subscribe({
+    next: (tokens) => {
+      this.purchasedTourIds = new Set(tokens.map((t: any) => t.tourId));
+    },
+    error: () => {}
+  });
+}
+
+isPurchased(tourId: number): boolean {
+  return this.purchasedTourIds.has(tourId);
+}
 }

@@ -9,8 +9,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public class TourDtos {
-
-
     @Data
     public static class CreateTourRequest {
         @NotBlank
@@ -20,6 +18,7 @@ public class TourDtos {
         private List<String> tags;
         @NotNull
         private Long authorId;
+        private List<CreateDurationRequest> durations;
     }
 
     @Data
@@ -49,7 +48,6 @@ public class TourDtos {
         private List<TourDurationResponse> durations;
         private List<ReviewResponse> reviews;
     }
-
 
     @Data
     public static class CreateKeyPointRequest {
@@ -85,7 +83,6 @@ public class TourDtos {
         private int orderIndex;
     }
 
-
     @Data
     public static class CreateReviewRequest {
         @Min(1) @Max(5)
@@ -111,7 +108,6 @@ public class TourDtos {
         private List<String> images;
     }
 
-
     @Data
     public static class CreateDurationRequest {
         @NotNull
@@ -126,7 +122,6 @@ public class TourDtos {
         private TourDuration.TransportType transportType;
         private int minutes;
     }
-
 
     @Data
     public static class UpdatePositionRequest {

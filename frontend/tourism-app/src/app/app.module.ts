@@ -16,6 +16,7 @@ import { KeypointComponent } from './components/keypoint/keypoint.component';
 import { ReviewComponent } from './components/review/review.component';
 import { PositionSimulatorComponent } from './components/position-simulator/position-simulator.component';
 import { TourExecutionComponent } from './components/tour-execution/tour-execution.component';
+import { ShoppingCartComponent } from './components/shopping-cart/shopping-cart.component';
 
 @NgModule({
   declarations: [
@@ -32,6 +33,7 @@ import { TourExecutionComponent } from './components/tour-execution/tour-executi
     ReviewComponent,
     PositionSimulatorComponent,
     TourExecutionComponent,
+    ShoppingCartComponent
   ],
   imports: [
     BrowserModule,

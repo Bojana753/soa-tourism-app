@@ -1029,3 +1029,17 @@ app-home {
   display: block;
   transition: transform 0.2s;
 }
+
+.nav-cart-link {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.nav-cart-link svg {
+  opacity: .85;
+  transition: opacity .3s;
+  flex-shrink: 0;
+}
+
+.nav-cart-link:hover svg { opacity: 1; }
