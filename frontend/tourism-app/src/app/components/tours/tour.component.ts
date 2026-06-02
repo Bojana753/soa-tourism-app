@@ -213,6 +213,10 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.errorMessage = 'Name and description are required.';
       return;
     }
+    if (this.newTour.tags.length === 0) {
+      this.errorMessage = 'Please add at least one tag.';
+      return;
+    }
     if (this.newTour.durations.length === 0) {
       this.errorMessage = 'Please add at least one transport duration.';
       return;
