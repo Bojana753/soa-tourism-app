@@ -1,12 +1,16 @@
 package main
 
 import (
+	"api-gateway/executiongrpc"
 	"context"
 	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
+	"os"
+	"strconv"
 	"time"
 
 	tourgrpc "api-gateway/generated/tour"
@@ -41,6 +45,50 @@ func proxyHandler(target string) http.HandlerFunc {
 			return nil
 		}
 		proxy.ServeHTTP(w, r)
+	}
+}
+
+func proximityHandler(client executiongrpc.ExecutionServiceClient) http.HandlerFunc {
+	type requestBody struct {
+		TouristID int64   `json:"touristId"`
+		Latitude  float64 `json:"latitude"`
+		Longitude float64 `json:"longitude"`
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		sessionID, err := strconv.ParseInt(mux.Vars(r)["sessionId"], 10, 64)
+		if err != nil || sessionID <= 0 {
+			http.Error(w, "Invalid execution session id", http.StatusBadRequest)
+			return
+		}
+
+		var body requestBody
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			http.Error(w, "Invalid proximity request", http.StatusBadRequest)
+			return
+		}
+		if body.TouristID <= 0 || body.Latitude < -90 || body.Latitude > 90 ||
+			body.Longitude < -180 || body.Longitude > 180 {
+			http.Error(w, "Invalid proximity request values", http.StatusBadRequest)
+			return
+		}
+
+		ctx, cancel := context.WithTimeout(r.Context(), 3*time.Second)
+		defer cancel()
+
+		response, err := client.CheckProximity(ctx, &executiongrpc.ProximityRequest{
+			SessionId: sessionID,
+			TouristId: body.TouristID,
+			Latitude:  body.Latitude,
+			Longitude: body.Longitude,
+		})
+		if err != nil {
+			http.Error(w, "Execution proximity check failed: "+err.Error(), http.StatusBadGateway)
+			return
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(response)
 	}
 }
 
@@ -153,6 +201,20 @@ func getPublishedToursGRPC(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	executionGrpcAddress := os.Getenv("EXECUTION_GRPC_ADDRESS")
+	if executionGrpcAddress == "" {
+		executionGrpcAddress = "tour-service:9090"
+	}
+	executionConnection, err := grpc.Dial(
+		executionGrpcAddress,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+	)
+	if err != nil {
+		log.Fatalf("Failed to configure execution gRPC client: %v", err)
+	}
+	defer executionConnection.Close()
+	executionClient := executiongrpc.NewExecutionServiceClient(executionConnection)
+
 	r := mux.NewRouter()
 	r.Use(corsMiddleware)
 
@@ -167,9 +229,11 @@ func main() {
 	r.PathPrefix("/recommendations").HandlerFunc(proxyHandler("http://follower-service:8083"))
 	r.PathPrefix("/following").HandlerFunc(proxyHandler("http://follower-service:8083"))
 
-r.HandleFunc("/api/tours/published", getPublishedToursGRPC).Methods("GET")
+	r.HandleFunc("/api/tours/published", getPublishedToursGRPC).Methods("GET")
 	r.PathPrefix("/api/tours").HandlerFunc(proxyHandler("http://tour-service:8084"))
 	r.PathPrefix("/api/position").HandlerFunc(proxyHandler("http://tour-service:8084"))
+	r.HandleFunc("/api/executions/{sessionId:[0-9]+}/proximity", proximityHandler(executionClient))
+	r.PathPrefix("/api/executions").HandlerFunc(proxyHandler("http://tour-service:8084"))
 
 	r.PathPrefix("/api/purchase").HandlerFunc(proxyHandler("http://purchase-service:8085"))
 
