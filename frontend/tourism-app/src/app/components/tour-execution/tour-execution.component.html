@@ -1,0 +1,55 @@
+<nav class="execution-nav">
+  <a routerLink="/" class="logo">Traavellio</a>
+  <div class="nav-links">
+    <a routerLink="/tours">Tours</a>
+    <a routerLink="/position-simulator">Position Simulator</a>
+  </div>
+</nav>
+
+<main class="execution-page">
+  <section class="execution-card" *ngIf="execution">
+    <p class="eyebrow">Tour Execution</p>
+    <h1>Active tour session</h1>
+    <p class="session-meta">Session #{{ execution.id }} for tour #{{ execution.tourId }}</p>
+
+    <div class="progress-label">
+      <span>Visited key points</span>
+      <strong>{{ execution.completedKeyPoints }} / {{ execution.totalKeyPoints }}</strong>
+    </div>
+    <div class="progress-track">
+      <div
+        class="progress-value"
+        [style.width.%]="execution.totalKeyPoints ? execution.completedKeyPoints / execution.totalKeyPoints * 100 : 0">
+      </div>
+    </div>
+
+    <p class="status" [class.completed]="execution.status === 'COMPLETED'">
+      Status: {{ execution.status }}
+    </p>
+
+    <div class="position-box" *ngIf="currentPosition; else noPosition">
+      <p>Current simulated position</p>
+      <strong>{{ currentPosition.lat.toFixed(6) }}, {{ currentPosition.lng.toFixed(6) }}</strong>
+    </div>
+    <ng-template #noPosition>
+      <div class="position-box warning">
+        Set your location in the position simulator to begin proximity checks.
+      </div>
+    </ng-template>
+
+    <button
+      class="btn-check"
+      (click)="checkProximity()"
+      [disabled]="!currentPosition || isChecking || execution.status === 'COMPLETED'">
+      {{ isChecking ? 'Checking...' : 'Check proximity now' }}
+    </button>
+
+    <p class="message" *ngIf="message">{{ message }}</p>
+    <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+    <p class="hint">While this page is open, your location is checked every 10 seconds through the gateway gRPC flow.</p>
+  </section>
+
+  <section class="execution-card" *ngIf="!execution && errorMessage">
+    <p class="error">{{ errorMessage }}</p>
+  </section>
+</main>
