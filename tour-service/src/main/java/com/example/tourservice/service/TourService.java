@@ -261,7 +261,7 @@ private TourResponse toResponse(Tour tour) {
     r.setPublishedAt(tour.getPublishedAt());
     r.setArchivedAt(tour.getArchivedAt());
     r.setCreatedAt(tour.getCreatedAt());
-    r.setKeyPoints(tour.getKeyPoints() != null 
+    r.setKeyPoints(tour.getKeyPoints() != null
         ? tour.getKeyPoints().stream().map(this::toKeyPointResponse).collect(Collectors.toList())
         : List.of());
     r.setDurations(durationRepository.findByTourId(tour.getId()) != null

@@ -18,7 +18,7 @@ public class TourDtos {
         private List<String> tags;
         @NotNull
         private Long authorId;
-        private List<CreateDurationRequest> durations; 
+        private List<CreateDurationRequest> durations;
     }
 
     @Data

@@ -1,0 +1,46 @@
+syntax = "proto3";
+
+option go_package = "./generated/tour";
+
+package tour;
+
+service TourService {
+  rpc GetPublishedTours(Empty) returns (TourListResponse);
+}
+
+message Empty {}
+
+message TourListResponse {
+  repeated TourMessage tours = 1;
+}
+
+message TourMessage {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  string difficulty = 4;
+  repeated string tags = 5;
+  string status = 6;
+  double price = 7;
+  int64 author_id = 8;
+  double length_km = 9;
+  string published_at = 10;
+  KeyPointMessage first_key_point = 11;
+  repeated DurationMessage durations = 12;
+}
+
+message KeyPointMessage {
+  int64 id = 1;
+  string name = 2;
+  string description = 3;
+  double latitude = 4;
+  double longitude = 5;
+  string image_url = 6;
+  int32 order_index = 7;
+}
+
+message DurationMessage {
+  int64 id = 1;
+  string transport_type = 2;
+  int32 minutes = 3;
+}

@@ -2,8 +2,8 @@ import { Component, OnInit, OnDestroy, AfterViewChecked, HostListener } from '@a
 import { Router } from '@angular/router';
 import { Tour, TourDifficulty, TourStatus, TourCreateDto, KeyPoint } from './tour.model';
 import { TourService } from '../../services/tour.service';
+import { ExecutionService } from '../../services/execution.service';
 import { PurchaseService } from '../../services/purchase.service';
-
 
 declare const L: any;
 
@@ -62,7 +62,12 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
   private routePolyline: any;
   private tempMarker: any;
 
-  constructor(private tourService: TourService, private router: Router, private purchaseService: PurchaseService) {}
+  constructor(
+    private tourService: TourService,
+    private executionService: ExecutionService,
+    private router: Router,
+    private purchaseService: PurchaseService
+  ) {}
 
   ngOnInit(): void {
     this.isLoggedIn = !!localStorage.getItem('token');
@@ -73,7 +78,7 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
     if (this.isTourist) {
       this.loadCartState();
-      this.loadPurchasedTours(); 
+      this.loadPurchasedTours();
     }
   }
 
@@ -134,6 +139,23 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
     });
   }
 
+  startTour(tour: Tour): void {
+    if (!tour.id) return;
+    this.isLoading = true;
+    this.errorMessage = '';
+    this.executionService.startTour(tour.id).subscribe({
+      next: execution => {
+        this.isLoading = false;
+        this.closeDetail();
+        this.router.navigate(['/tour-execution', execution.id]);
+      },
+      error: error => {
+        this.isLoading = false;
+        this.errorMessage = error?.error?.error || 'Could not start the tour. Confirm that it has been purchased.';
+      }
+    });
+  }
+
   loadPublishedTours(): void {
     this.tourService.getPublishedTours().subscribe({
       next: (tours) => {
@@ -189,6 +211,10 @@ export class TourComponent implements OnInit, OnDestroy, AfterViewChecked {
   createTourAndProceed(): void {
     if (!this.newTour.name || !this.newTour.description) {
       this.errorMessage = 'Name and description are required.';
+      return;
+    }
+    if (this.newTour.tags.length === 0) {
+      this.errorMessage = 'Please add at least one tag.';
       return;
     }
     if (this.newTour.durations.length === 0) {
