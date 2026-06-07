@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package execution;
+
+option java_multiple_files = true;
+option java_package = "com.example.tourservice.grpc";
+option java_outer_classname = "ExecutionProto";
+
+service ExecutionService {
+  rpc CheckProximity(ProximityRequest) returns (ProximityResponse);
+}
+
+message ProximityRequest {
+  int64 session_id = 1;
+  int64 tourist_id = 2;
+  double latitude = 3;
+  double longitude = 4;
+}
+
+message ProximityResponse {
+  bool within_range = 1;
+  double distance_meters = 2;
+  int64 key_point_id = 3;
+  string key_point_name = 4;
+  bool key_point_completed = 5;
+  int32 completed_key_points = 6;
+  int32 total_key_points = 7;
+  bool tour_completed = 8;
+}

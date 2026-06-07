@@ -219,7 +219,7 @@
         </div>
 
         <div class="form-group">
-          <label class="form-label">Tags</label>
+          <label class="form-label">Tags <span class="required">*</span></label>
           <div class="tag-input-container">
             <div class="tags-display">
               <span *ngFor="let tag of newTour.tags" class="tag-pill">
@@ -389,6 +389,13 @@
             <span class="meta-value">{{ (selectedTour.keyPoints || []).length }}</span>
           </div>
         </div>
+        <button
+          *ngIf="!isGuide && selectedTour.id"
+          class="btn-gold"
+          (click)="startTour(selectedTour)"
+          [disabled]="isLoading">
+          {{ isLoading ? 'Starting...' : 'Start Tour' }}
+        </button>
 
         <div *ngIf="selectedTour.keyPoints && selectedTour.keyPoints.length > 0" style="margin-top: 20px;">
           <div class="meta-label" style="margin-bottom: 8px;">📍 Starting Point</div>

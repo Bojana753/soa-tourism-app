@@ -117,5 +117,5 @@ public class TourController {
         TourResponse tour = tourService.getTour(id);
         return ResponseEntity.ok(Map.of("status", tour.getStatus().toString()));
     }
- 
+
 }

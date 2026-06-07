@@ -78,6 +78,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://tour-db:5432/tourdb
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
+      - PURCHASE_SERVICE_URL=http://purchase-service:8085
     depends_on:
       tour-db:
         condition: service_healthy
@@ -142,6 +143,8 @@ services:
     build: ./api-gateway
     ports:
       - "8080:8080"
+    environment:
+      - EXECUTION_GRPC_ADDRESS=tour-service:9090
     depends_on:
       - stakeholders-service
       - blog-service
