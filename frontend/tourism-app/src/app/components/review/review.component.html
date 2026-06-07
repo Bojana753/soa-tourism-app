@@ -1,23 +1,5 @@
-<nav class="navbar" [class.scrolled]="isScrolled">
-  <a routerLink="/" class="logo">✈ Traavellio</a>
-  <div class="nav-links">
-    <ng-container *ngIf="isLoggedIn">
-      <a routerLink="/blog" class="nav-link">Blogs</a>
-      <a routerLink="/feed" class="nav-link">Feed</a>
-    </ng-container>
-    <a routerLink="/profile" class="nav-link">Profile</a>
-    <ng-container *ngIf="!isLoggedIn">
-      <a routerLink="/login" class="nav-cta">Sign In →</a>
-    </ng-container>
-    <ng-container *ngIf="isLoggedIn">
-      <a (click)="signOut()" class="nav-cta" style="cursor:pointer;">Sign Out →</a>
-    </ng-container>
-  </div>
-</nav>
-
 <div class="review-page">
 
-  <!-- ═══ HERO SECTION ═══ -->
   <section class="hero-section">
 
     <div class="hero-content">
