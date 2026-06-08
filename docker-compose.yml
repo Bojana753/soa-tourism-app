@@ -3,11 +3,17 @@ services:
     build: ./stakeholders-service
     ports:
       - "8081:8081"
+      - "8889:8889"
     environment:
       - DB_HOST=stakeholders-db
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_METRICS_EXPORTER=prometheus
+      - PROMETHEUS_ENDPOINT=0.0.0.0:8889
     depends_on:
       stakeholders-db:
         condition: service_healthy
+      jaeger:
+        condition: service_started
 
   stakeholders-db:
     image: postgres:15
@@ -39,9 +45,15 @@ services:
     environment:
       MONGODB_URI: mongodb://blog-mongodb:27017/blogdb
       FOLLOWER_SERVICE_URL: http://follower-service:8083
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4317
+      OTEL_EXPORTER_OTLP_PROTOCOL: grpc
+      OTEL_TRACES_EXPORTER: otlp
+      OTEL_METRICS_EXPORTER: prometheus
+      MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE: prometheus,health
     depends_on:
       - blog-mongodb
       - follower-service
+      - jaeger
 
   follower-neo4j:
     image: neo4j:5-community
@@ -58,6 +70,7 @@ services:
     build: ./follower-service
     ports:
       - "8083:8083"
+      - "8888:8888"
     environment:
       PORT: 8083
       NEO4J_URL: http://follower-neo4j:7474
@@ -66,8 +79,12 @@ services:
       NEO4J_DATABASE: neo4j
       BLOG_SERVICE_URL: http://blog-service:8082
       JWT_SECRET: super-secret-key-123
+      OTEL_EXPORTER_OTLP_ENDPOINT: http://jaeger:4318
+      OTEL_METRICS_EXPORTER: prometheus
+      PROMETHEUS_ENDPOINT: 0.0.0.0:8888
     depends_on:
       - follower-neo4j
+      - jaeger
 
   tour-service:
     build: ./tour-service
@@ -79,9 +96,16 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - PURCHASE_SERVICE_URL=http://purchase-service:8085
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=prometheus
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=prometheus,health
     depends_on:
       tour-db:
         condition: service_healthy
+      jaeger:
+        condition: service_started
 
   tour-db:
     image: postgres:15
@@ -108,10 +132,17 @@ services:
       - SPRING_DATASOURCE_USERNAME=postgres
       - SPRING_DATASOURCE_PASSWORD=postgres
       - TOUR_SERVICE_URL=http://tour-service:8084
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4317
+      - OTEL_EXPORTER_OTLP_PROTOCOL=grpc
+      - OTEL_TRACES_EXPORTER=otlp
+      - OTEL_METRICS_EXPORTER=prometheus
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=prometheus,health
     depends_on:
       purchase-db:
         condition: service_healthy
       tour-service:
+        condition: service_started
+      jaeger:
         condition: service_started
 
   purchase-db:
@@ -145,12 +176,98 @@ services:
       - "8080:8080"
     environment:
       - EXECUTION_GRPC_ADDRESS=tour-service:9090
+      - OTEL_EXPORTER_OTLP_ENDPOINT=http://jaeger:4318
+      - OTEL_EXPORTER_OTLP_HEADERS=
+      - OTEL_METRICS_EXPORTER=prometheus
+      - PROMETHEUS_ENDPOINT=0.0.0.0:8888
     depends_on:
       - stakeholders-service
       - blog-service
       - follower-service
       - tour-service
       - purchase-service
+      - jaeger
+
+  # Distributed Tracing with Jaeger
+  jaeger:
+    image: jaegertracing/all-in-one:latest
+    ports:
+      - "16686:16686"  # Jaeger UI
+      - "4318:4318"    # OTLP HTTP receiver
+      - "4317:4317"    # OTLP gRPC receiver
+      - "6831:6831/udp" # Jaeger agent
+    environment:
+      - COLLECTOR_OTLP_ENABLED=true
+    networks:
+      - default
+
+  # Metrics Collection
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9091:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - default
+    depends_on:
+      - node-exporter
+      - cadvisor
+
+  # Host Metrics Exporter
+  node-exporter:
+    image: prom/node-exporter:latest
+    ports:
+      - "9100:9100"
+    volumes:
+      - /proc:/host/proc:ro
+      - /sys:/host/sys:ro
+      - /:/rootfs:ro
+    command:
+      - '--path.procfs=/host/proc'
+      - '--path.rootfs=/rootfs'
+      - '--path.sysfs=/host/sys'
+      - '--collector.filesystem.mount-points-exclude=^/(sys|proc|dev|host|etc)($$|/)'
+    networks:
+      - default
+
+  # Container Metrics Exporter
+  cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    ports:
+      - "8089:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker/:/var/lib/docker:ro
+      - /dev/disk/:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - default
+
+  # Visualization
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_SECURITY_ADMIN_USER=admin
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
+      - ./monitoring/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+    depends_on:
+      - prometheus
+    networks:
+      - default
 
 volumes:
   blog_mongo_data:
@@ -159,6 +276,8 @@ volumes:
   stakeholders_pg_data:
   tour_pg_data:
   purchase_pg_data:
+  prometheus_data:
+  grafana_data:
 
 networks:
   default:
