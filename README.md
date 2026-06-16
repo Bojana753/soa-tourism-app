@@ -76,6 +76,25 @@ Content-Type: application/json
 The API gateway forwards this call to `tour-service` through the gRPC
 `ExecutionService.CheckProximity` RPC defined in `proto/execution.proto`.
 
+## KT4 Observability
+
+The compose stack includes an observability setup for logs and container
+metrics:
+
+- Promtail discovers Docker containers and sends logs to Loki.
+- cAdvisor exposes container CPU and memory metrics.
+- Prometheus scrapes cAdvisor.
+- Grafana provisions Loki and Prometheus data sources plus a ready dashboard.
+
+Run the stack with:
+
+```bash
+docker compose up --build
+```
+
+Open Grafana at `http://localhost:3000` and log in with `admin / admin`.
+The dashboard is named `SOA Tourism Logs and Container Metrics`.
+
 ## Team
 
 | Name | GitHub |
