@@ -188,37 +188,36 @@ services:
       - purchase-service
       - jaeger
 
-  # Distributed Tracing with Jaeger
   jaeger:
     image: jaegertracing/all-in-one:latest
     ports:
-      - "16686:16686"  # Jaeger UI
-      - "4318:4318"    # OTLP HTTP receiver
-      - "4317:4317"    # OTLP gRPC receiver
-      - "6831:6831/udp" # Jaeger agent
+      - "16686:16686"   
+      - "4318:4318"     
+      - "4317:4317"    
+      - "6831:6831/udp" 
     environment:
       - COLLECTOR_OTLP_ENABLED=true
     networks:
       - default
 
-  # Metrics Collection
-  prometheus:
-    image: prom/prometheus:latest
+  loki:
+    image: grafana/loki:2.9.8
     ports:
-      - "9091:9090"
+      - "3100:3100"
+    command: -config.file=/etc/loki/local-config.yml
     volumes:
-      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:ro
-      - prometheus_data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-    networks:
-      - default
-    depends_on:
-      - node-exporter
-      - cadvisor
+      - ./observability/loki/loki-config.yml:/etc/loki/local-config.yml:ro
+      - loki_data:/loki
 
-  # Host Metrics Exporter
+  promtail:
+    image: grafana/promtail:2.9.8
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      - ./observability/promtail/promtail-config.yml:/etc/promtail/config.yml:ro
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    depends_on:
+      - loki
+
   node-exporter:
     image: prom/node-exporter:latest
     ports:
@@ -235,39 +234,50 @@ services:
     networks:
       - default
 
-  # Container Metrics Exporter
   cadvisor:
-    image: gcr.io/cadvisor/cadvisor:latest
+    image: gcr.io/cadvisor/cadvisor:v0.49.1
     ports:
-      - "8089:8080"
+      - "8086:8080"
+    privileged: true
+    devices:
+      - /dev/kmsg:/dev/kmsg
     volumes:
       - /:/rootfs:ro
-      - /var/run:/var/run:ro
+      - /var/run:/var/run:rw
       - /sys:/sys:ro
       - /var/lib/docker/:/var/lib/docker:ro
       - /dev/disk/:/dev/disk:ro
-    privileged: true
-    devices:
-      - /dev/kmsg
-    networks:
-      - default
 
-  # Visualization
+  prometheus:
+    image: prom/prometheus:v2.52.0
+    ports:
+      - "9091:9090"
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+      - --web.enable-lifecycle
+    volumes:
+      - ./observability/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - prometheus_data:/prometheus
+    depends_on:
+      - cadvisor
+      - node-exporter
+
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana:10.4.3
     ports:
       - "3000:3000"
     environment:
-      - GF_SECURITY_ADMIN_PASSWORD=admin
       - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_USERS_ALLOW_SIGN_UP=false
     volumes:
       - grafana_data:/var/lib/grafana
-      - ./monitoring/grafana-datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml:ro
-      - ./monitoring/grafana-dashboards.yml:/etc/grafana/provisioning/dashboards/dashboards.yml:ro
+      - ./observability/grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./observability/grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
+      - loki
       - prometheus
-    networks:
-      - default
 
 volumes:
   blog_mongo_data:
@@ -276,6 +286,7 @@ volumes:
   stakeholders_pg_data:
   tour_pg_data:
   purchase_pg_data:
+  loki_data:
   prometheus_data:
   grafana_data:
 
