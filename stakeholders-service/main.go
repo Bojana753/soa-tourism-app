@@ -1,7 +1,9 @@
 package main
 
 import (
+	"context"
 	"fmt"
+	"log"
 	"net/http"
 	"stakeholders-service/db"
 	"stakeholders-service/handler"
@@ -24,6 +26,23 @@ func corsMiddleware(next http.Handler) http.Handler {
 }
 
 func main() {
+	ctx := context.Background()
+	tp, err := InitializeTracing(ctx)
+	if err != nil {
+		log.Printf("warning: could not initialize tracing: %v", err)
+	}
+	defer func() {
+		if tp != nil {
+			_ = tp.Shutdown(ctx)
+		}
+	}()
+
+	_, err = InitializeMetrics(ctx)
+	if err != nil {
+		log.Printf("warning: could not initialize metrics: %v", err)
+	}
+	StartMetricsServer("8889")
+
 	db.Connect()
 
 	r := mux.NewRouter()

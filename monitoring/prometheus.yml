@@ -1,0 +1,72 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+  external_labels:
+    monitor: 'soa-tourism-app'
+
+# Alertmanager configuration
+alerting:
+  alertmanagers:
+    - static_configs:
+        - targets: []
+
+scrape_configs:
+  # Prometheus self monitoring
+  - job_name: 'prometheus'
+    static_configs:
+      - targets: ['localhost:9090']
+
+  # Host metrics from Node Exporter
+  - job_name: 'node-exporter'
+    static_configs:
+      - targets: ['node-exporter:9100']
+
+  # Container metrics from cAdvisor
+  - job_name: 'cadvisor'
+    static_configs:
+      - targets: ['cadvisor:8080']
+
+  # Stakeholders Service
+  - job_name: 'stakeholders-service'
+    static_configs:
+      - targets: ['stakeholders-service:8889']
+    scrape_interval: 10s
+
+  # Blog Service
+  - job_name: 'blog-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['blog-service:8082']
+    scrape_interval: 10s
+
+  # Follower Service
+  - job_name: 'follower-service'
+    static_configs:
+      - targets: ['follower-service:8888']
+    scrape_interval: 10s
+
+  # Tour Service
+  - job_name: 'tour-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['tour-service:8084']
+    scrape_interval: 10s
+
+  # Purchase Service
+  - job_name: 'purchase-service'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['purchase-service:8085']
+    scrape_interval: 10s
+
+  # API Gateway
+  - job_name: 'api-gateway'
+    static_configs:
+      - targets: ['api-gateway:8888']
+    scrape_interval: 10s
+
+  # Jaeger collector metrics
+  - job_name: 'jaeger'
+    static_configs:
+      - targets: ['jaeger:14269']
+    scrape_interval: 10s

@@ -15,3 +15,36 @@ logging:
 follower:
   service:
     url: ${FOLLOWER_SERVICE_URL:http://follower-service:8083}
+
+# OpenTelemetry Configuration
+otel:
+  sdk:
+    enabled: true
+  exporter:
+    otlp:
+      endpoint: ${OTEL_EXPORTER_OTLP_ENDPOINT:http://localhost:4318}
+  traces:
+    exporter: otlp
+  metrics:
+    exporter: prometheus
+  service:
+    name: blog-service
+
+# Actuator for Prometheus metrics
+management:
+  endpoints:
+    web:
+      exposure:
+        include: prometheus,health,info
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+  endpoint:
+    health:
+      show-details: always
+  health:
+    livenessState:
+      enabled: true
+    readinessState:
+      enabled: true
