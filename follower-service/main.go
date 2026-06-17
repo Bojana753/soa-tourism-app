@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -28,6 +29,24 @@ type recommendation struct {
 
 func main() {
 	cfg := loadConfig()
+
+	ctx := context.Background()
+	tp, err := InitializeTracing(ctx)
+	if err != nil {
+		log.Printf("warning: could not initialize tracing: %v", err)
+	}
+	defer func() {
+		if tp != nil {
+			_ = tp.Shutdown(ctx)
+		}
+	}()
+
+	_, err = InitializeMetrics(ctx)
+	if err != nil {
+		log.Printf("warning: could not initialize metrics: %v", err)
+	}
+	StartMetricsServer("8888")
+
 	server := &Server{
 		cfg:   cfg,
 		neo4j: NewNeo4jClient(cfg),

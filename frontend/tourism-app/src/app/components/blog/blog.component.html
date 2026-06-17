@@ -1,125 +1,245 @@
-<div class="container">
-  <nav class="navbar" [class.scrolled]="false">
-    <a routerLink="/" class="logo">✈ Traavellio</a>
-    <div class="nav-links">
-      <a routerLink="/profile" class="nav-link">Profile</a>
-      <a routerLink="/position-simulator" class="nav-link" style="color: var(--gold) !important;">⊙ Simulator</a>
-      <a routerLink="/feed" class="nav-link">Feed</a>
-      <a (click)="signOut()" class="nav-cta" style="cursor:pointer;">Sign Out →</a>
-    </div>
-  </nav>
-
-  <div class="blog-header">
-    <div class="header-label">Journal</div>
-    <div class="header-content">
-      <h1 class="page-title">Discover & share<br><span>travel stories</span></h1>
-      <p class="page-subtitle">Explore inspiring blog posts from travelers around the world — written slowly, meant to be read slowly.</p>
-      <div class="header-actions">
-        <button (click)="showNewBlogForm = !showNewBlogForm" class="btn-primary">
-          {{ showNewBlogForm ? '✕ Cancel' : '+ New Blog' }}
-        </button>
-      </div>
-    </div>
+<!-- Hero section -->
+<div class="blog-hero">
+  <div class="hero-left">
+    <h1 class="hero-title">Discover<br>&amp;<br>share<br>travel<br>stories</h1>
+    <button (click)="showNewBlogForm = true" class="btn-hero-new">+ New Blog</button>
   </div>
-
-  <div class="blog-wrapper">
-    <div class="blog-content">
-
-      <div *ngIf="showNewBlogForm" class="new-blog-form">
-        <h3>Write a New Story</h3>
-        <input type="text" placeholder="Blog Title" [(ngModel)]="newBlogTitle" class="form-input"/>
-        <textarea placeholder="Your story..." [(ngModel)]="newBlogContent" class="form-textarea"></textarea>
-        <button (click)="createBlog()" class="btn-submit">Publish Story</button>
-        <p class="error" *ngIf="error">{{ error }}</p>
-      </div>
-
-      <div class="section-label">Latest</div>
-      <h2 class="section-title">Fresh from the <span>road</span></h2>
-
-      <div *ngIf="loading" class="loading">Loading blogs...</div>
-      <div *ngIf="error && !loading" class="error-banner">{{ error }}</div>
-
-      <div *ngIf="!loading && blogs.length > 0" class="blogs-list">
-        <div *ngFor="let blog of blogs" class="blog-card">
-          <div class="blog-header-card">
-            <div class="blog-author-info">
-              <div class="author-avatar">{{ (blog.authorName || blog.authorUserId)?.charAt(0) || 'U' }}</div>
-              <div class="author-details">
-                <h4 class="author-name">{{ blog.authorName || blog.authorUserId || 'Unknown Author' }}</h4>
-                <p class="blog-date">{{ blog.createdAt | date: 'MMM d, yyyy' }}</p>
-              </div>
-              <button
-                *ngIf="blog.authorUserId?.toString() !== currentUserId?.toString()"
-                (click)="followUser(blog.authorUserId)"
-                [disabled]="blog.following"
-                class="btn-follow">
-                {{ blog.following ? '✓ Following' : '+ Follow' }}
-              </button>
-            </div>
-          </div>
-          <div class="blog-body">
-            <h2 class="blog-title">{{ blog.title }}</h2>
-            <p class="blog-excerpt">{{ blog.description | slice:0:200 }}...</p>
-          </div>
-          <div class="blog-footer">
-            <div class="blog-stats">
-              <span class="stat"><i>❤</i> {{ blog.likeCount || 0 }} Likes</span>
-              <span class="stat" (click)="loadComments(blog)" style="cursor:pointer;">
-                <i>💬</i> {{ blog.commentCount || 0 }} Comments
-              </span>
-            </div>
-            <div class="blog-actions">
-              <button
-                (click)="blog.liked ? unlikeBlog(blog.id) : likeBlog(blog.id)"
-                [class.liked]="blog.liked"
-                class="btn-action">
-                {{ blog.liked ? '❤ Liked' : '🤍 Like' }}
-              </button>
-              <button
-                *ngIf="blog.authorUserId !== currentUserId && blog.following"
-                (click)="blog.showCommentForm = !blog.showCommentForm"
-                class="btn-action">
-                💬 Comment
-              </button>
-              <button *ngIf="blog.authorUserId === currentUserId"
-                (click)="deleteBlog(blog.id)"
-                class="btn-action btn-danger">
-                🗑 Delete
-              </button>
-            </div>
-          </div>
-
-          <div *ngIf="blog.showComments" class="comment-section">
-            <div *ngIf="blog.comments?.length > 0" class="comments-list">
-              <div *ngFor="let comment of blog.comments" class="comment-item">
-                <strong>{{ comment.authorName || comment.authorUserId }}</strong>
-                <p>{{ comment.text }}</p>
-              </div>
-            </div>
-            <div *ngIf="blog.comments?.length === 0" class="empty-state">
-              <p>No comments yet.</p>
-            </div>
-          </div>
-
-          <div *ngIf="blog.showCommentForm && (blog.following || blog.authorUserId === currentUserId)" class="comment-section">
-            <div class="comment-form">
-              <textarea
-                [(ngModel)]="blog.newComment"
-                placeholder="Write a comment..."
-                class="form-textarea"
-                rows="2"
-              ></textarea>
-              <button (click)="addComment(blog)" class="btn-submit" style="display:block;margin-top:8px;">Post Comment</button>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <div *ngIf="!loading && blogs.length === 0" class="empty-state">
-        <p>No blogs yet. Start writing your travel story!</p>
-      </div>
-
+  <div class="hero-right">
+    <div class="hero-image"></div>
+    <div class="hero-caption">
+      <span class="hero-caption-vol">Latest Story</span>
+      <span class="hero-caption-name">Patagonia, Chile</span>
     </div>
   </div>
 </div>
+
+<!-- Scrolling destination ticker -->
+<div class="ticker-wrap">
+  <div class="ticker-track">
+    <span *ngFor="let dest of tickerDestinations" class="ticker-item">
+      {{ dest }} <span class="ticker-dot">•</span>
+    </span>
+    <span *ngFor="let dest of tickerDestinations" class="ticker-item">
+      {{ dest }} <span class="ticker-dot">•</span>
+    </span>
+  </div>
+</div>
+
+<!-- ── New blog form modal ── -->
+<div *ngIf="showNewBlogForm" class="form-overlay" (click)="closeForm()">
+  <div class="form-modal form-modal-wide" (click)="$event.stopPropagation()">
+    <button class="form-close" (click)="closeForm()">✕</button>
+    <h3 class="form-title">Write a New Story</h3>
+
+    <!-- Title -->
+    <input
+      type="text"
+      placeholder="Blog Title *"
+      [(ngModel)]="newBlogTitle"
+      class="form-input"
+    />
+
+    <!-- Markdown toolbar hint -->
+    <div class="md-toolbar">
+      <span class="md-label">Description (Markdown supported)</span>
+      <div class="md-tabs">
+        <button
+          [class.active]="!showMarkdownPreview"
+          (click)="showMarkdownPreview = false"
+          class="md-tab">Write</button>
+        <button
+          [class.active]="showMarkdownPreview"
+          (click)="showMarkdownPreview = true"
+          class="md-tab">Preview</button>
+      </div>
+    </div>
+
+    <!-- Write tab -->
+    <div *ngIf="!showMarkdownPreview">
+      <div class="md-hints">
+        <span>**bold**</span>
+        <span>*italic*</span>
+        <span># heading</span>
+        <span>`code`</span>
+        <span>[link](url)</span>
+      </div>
+      <textarea
+        placeholder="Your story... (Markdown supported) *"
+        [(ngModel)]="newBlogContent"
+        class="form-textarea"
+      ></textarea>
+    </div>
+
+    <!-- Preview tab -->
+    <div *ngIf="showMarkdownPreview" class="md-preview" [innerHTML]="markdownPreviewHtml"></div>
+
+    <!-- Image upload -->
+    <div class="image-upload-area">
+      <div *ngIf="!newBlogImagePreview" class="image-upload-placeholder" (click)="imageInput.click()">
+        <span class="upload-icon">🖼</span>
+        <span class="upload-text">Add a cover image (optional)</span>
+        <span class="upload-hint">Click to browse or drag & drop</span>
+      </div>
+      <div *ngIf="newBlogImagePreview" class="image-preview-wrap">
+        <img [src]="newBlogImagePreview" class="image-preview" alt="Preview" />
+        <button class="btn-remove-image" (click)="removeSelectedImage()">✕ Remove</button>
+      </div>
+      <input
+        #imageInput
+        type="file"
+        accept="image/*"
+        style="display:none"
+        (change)="onImageSelected($event)"
+      />
+    </div>
+
+    <div class="form-actions">
+      <button (click)="createBlog()" class="btn-submit">Publish Story</button>
+      <button (click)="closeForm()" class="btn-cancel">Cancel</button>
+    </div>
+    <p class="error" *ngIf="error">{{ error }}</p>
+  </div>
+</div>
+
+<!-- ── Main blog section ── -->
+<div class="blog-wrapper">
+
+  <div class="section-header">
+    <div class="section-left">
+      <span class="section-label">+ Latest</span>
+      <h2 class="section-title">Fresh from the road</h2>
+    </div>
+    <div class="section-right">
+      <span class="sorted-label">Sorted by Recency</span>
+      <button (click)="showNewBlogForm = true" class="btn-new-blog">+ New Blog</button>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <div *ngIf="loading" class="loading">Loading blogs...</div>
+  <div *ngIf="error && !loading" class="error-banner">{{ error }}</div>
+
+  <div *ngIf="!loading && blogs.length > 0" class="blogs-grid">
+    <div *ngFor="let blog of blogs; let i = index" class="blog-card" [class.tall]="i % 5 === 0">
+
+      <!-- Image area -->
+      <div class="card-image" [style.background-image]="'url(' + getCardImage(blog, i) + ')'">
+        <span *ngIf="blog.following" class="badge badge-following">✓ Following</span>
+      </div>
+
+      <!-- Card body -->
+      <div class="card-body">
+
+        <!-- Author row -->
+        <div class="card-author">
+          <div class="author-avatar">{{ (blog.authorName || blog.authorUserId)?.charAt(0)?.toUpperCase() || 'U' }}</div>
+          <div class="author-info">
+            <span class="author-name">{{ blog.authorName || blog.authorUserId }}</span>
+            <!-- spec: date of creation -->
+            <span class="author-date">{{ blog.createdAt | date: 'MMM d, yyyy · HH:mm' }}</span>
+          </div>
+          <button
+            *ngIf="blog.authorUserId?.toString() !== currentUserId?.toString()"
+            (click)="followUser(blog.authorUserId)"
+            [disabled]="blog.following"
+            class="btn-follow"
+            [title]="blog.following ? 'Following' : 'Follow'">
+            {{ blog.following ? '✓' : '+' }}
+          </button>
+        </div>
+
+        <!-- Title -->
+        <h2 class="card-title">{{ blog.title }}</h2>
+
+        <!-- Description rendered as markdown (spec: markdown support) -->
+        <div class="card-excerpt markdown-body" [innerHTML]="renderMarkdown((blog.description || '').substring(0, 300))"></div>
+
+        <!-- Footer: likes + comments -->
+        <div class="card-footer">
+          <div class="card-stats">
+            <!-- spec: like max once, can unlike -->
+            <button
+              (click)="blog.liked ? unlikeBlog(blog.id) : likeBlog(blog.id)"
+              [class.liked]="blog.liked"
+              class="stat-btn"
+              [title]="blog.liked ? 'Unlike' : 'Like'">
+              {{ blog.liked ? '♥' : '♡' }} {{ blog.likeCount || 0 }} Likes
+            </button>
+            <button (click)="loadComments(blog)" class="stat-btn">
+              💬 {{ blog.commentCount || 0 }} Comments
+            </button>
+          </div>
+          <div class="card-actions">
+            <!-- spec: only followers can comment -->
+            <button
+              *ngIf="canComment(blog) && blog.authorUserId?.toString() !== currentUserId?.toString()"
+              (click)="blog.showCommentForm = !blog.showCommentForm"
+              class="btn-icon" title="Write a comment">
+              ✎
+            </button>
+            <button
+              *ngIf="!canComment(blog)"
+              class="btn-icon btn-icon-locked"
+              title="Follow this user to comment"
+              disabled>
+              🔒
+            </button>
+            <button *ngIf="blog.authorUserId === currentUserId"
+              (click)="deleteBlog(blog.id)"
+              class="btn-icon btn-icon-danger" title="Delete blog">
+              ✕
+            </button>
+          </div>
+        </div>
+
+        <!-- Comments list -->
+        <div *ngIf="blog.showComments" class="comment-section">
+          <div *ngIf="blog.comments?.length > 0" class="comments-list">
+            <div *ngFor="let comment of blog.comments" class="comment-item">
+              <!-- spec: author info, created at, text, last edited -->
+              <div class="comment-meta">
+                <strong>{{ comment.authorName || comment.authorUserId }}</strong>
+                <span class="comment-date">{{ comment.createdAt | date: 'MMM d, yyyy · HH:mm' }}</span>
+                <span *ngIf="comment.updatedAt && comment.updatedAt !== comment.createdAt" class="comment-edited">
+                  (edited {{ comment.updatedAt | date: 'MMM d · HH:mm' }})
+                </span>
+              </div>
+              <p>{{ comment.text }}</p>
+            </div>
+          </div>
+          <p *ngIf="blog.comments?.length === 0" class="no-comments">No comments yet.</p>
+        </div>
+
+        <!-- Comment form — only for followers (spec requirement) -->
+        <div *ngIf="blog.showCommentForm && canComment(blog)" class="comment-section">
+          <textarea
+            [(ngModel)]="blog.newComment"
+            placeholder="Write a comment..."
+            class="form-textarea comment-textarea"
+            rows="2">
+          </textarea>
+          <button (click)="addComment(blog)" class="btn-submit btn-submit-sm">Post</button>
+        </div>
+
+        <!-- Not following notice -->
+        <div *ngIf="blog.showCommentForm && !canComment(blog)" class="follow-notice">
+          Follow this author to leave a comment.
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state: if following feed is empty -->
+  <div *ngIf="!loading && blogs.length === 0" class="empty-state">
+    <p>No blogs yet. Start writing your travel story!</p>
+  </div>
+
+</div>
+
+<!-- Footer -->
+<footer class="blog-footer">
+  <span class="footer-brand">Traavellio Journal</span>
+  <span class="footer-copy">EST. 2024 — ALL RIGHTS RESERVED</span>
+</footer>

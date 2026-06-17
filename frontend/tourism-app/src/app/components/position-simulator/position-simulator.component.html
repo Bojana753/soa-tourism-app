@@ -1,22 +1,3 @@
-<nav class="navbar" [class.scrolled]="isScrolled">
-  <a routerLink="/" class="logo">✈ Traavellio</a>
-  <div class="nav-links">
-    <ng-container *ngIf="isLoggedIn">
-      <a routerLink="/blog" class="nav-link">Blogs</a>
-      <a routerLink="/tours" class="nav-link">Tours</a>
-      <a routerLink="/feed" class="nav-link">Feed</a>
-    </ng-container>
-    <a routerLink="/profile" class="nav-link">Profile</a>
-    <a routerLink="/position-simulator" class="nav-link" style="color: var(--gold) !important;">⊙ Simulator</a>
-    <ng-container *ngIf="!isLoggedIn">
-      <a routerLink="/login" class="nav-cta">Sign In →</a>
-    </ng-container>
-    <ng-container *ngIf="isLoggedIn">
-      <a (click)="signOut()" class="nav-cta" style="cursor:pointer;">Sign Out →</a>
-    </ng-container>
-  </div>
-</nav>
-
 <div class="simulator-page">
 
   <div class="sim-hero">

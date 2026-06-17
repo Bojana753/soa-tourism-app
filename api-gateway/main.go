@@ -201,6 +201,25 @@ func getPublishedToursGRPC(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Initialize OpenTelemetry
+	ctx := context.Background()
+	tp, err := InitializeTracing(ctx)
+	if err != nil {
+		fmt.Printf("Warning: Failed to initialize tracing: %v\n", err)
+	}
+	defer func() {
+		if tp != nil {
+			tp.ForceFlush(ctx)
+			tp.Shutdown(ctx)
+		}
+	}()
+
+	_, err = InitializeMetrics(ctx)
+	if err != nil {
+		fmt.Printf("Warning: Failed to initialize metrics: %v\n", err)
+	}
+	StartMetricsServer("8888")
+
 	executionGrpcAddress := os.Getenv("EXECUTION_GRPC_ADDRESS")
 	if executionGrpcAddress == "" {
 		executionGrpcAddress = "tour-service:9090"

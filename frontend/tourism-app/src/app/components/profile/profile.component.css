@@ -7,34 +7,8 @@
   background: #0d0d0d;
   color: #f0ece4;
   font-family: 'DM Sans', sans-serif;
+  padding-top: 61px;
 }
-
-/* NAV */
-.top-nav {
-  padding: 24px 48px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  border-bottom: 1px solid #1a1a1a;
-}
-
-.logo {
-  font-family: 'Cormorant Garamond', serif;
-  font-size: 22px;
-  font-weight: 600;
-  color: #f0ece4;
-  text-decoration: none;
-}
-
-.nav-logout {
-  font-size: 13px;
-  letter-spacing: 1px;
-  color: #888;
-  text-decoration: none;
-  transition: color 0.3s;
-}
-
-.nav-logout:hover { color: #c9a96e; }
 
 /* TOAST */
 .toast {
@@ -53,8 +27,8 @@
 /* PROFILE WRAPPER */
 .profile-wrapper {
   max-width: 960px;
-  margin: 60px auto;
-  padding: 0 32px;
+  margin: 0 auto;
+  padding: 48px 32px 80px;
 }
 
 /* VIEW MODE */
@@ -137,7 +111,7 @@
 /* DETAILS */
 .profile-details {
   flex: 1;
-  padding-top: 8px;
+  padding-top: 0;
 }
 
 .section-label {
@@ -293,8 +267,8 @@
 }
 
 @media (max-width: 768px) {
-  .top-nav { padding: 20px 24px; }
   .profile-layout { flex-direction: column; gap: 40px; }
   .profile-sidebar { width: 100%; }
   .form-row { flex-direction: column; gap: 0; }
+  .profile-wrapper { padding: 32px 24px 60px; }
 }
