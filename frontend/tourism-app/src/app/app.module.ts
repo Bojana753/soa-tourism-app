@@ -18,6 +18,7 @@ import { PositionSimulatorComponent } from './components/position-simulator/posi
 import { TourExecutionComponent } from './components/tour-execution/tour-execution.component';
 import { ShoppingCartComponent } from './components/shopping-cart/shopping-cart.component';
 import { NavbarComponent } from './components/navbar/navbar.component';
+import { NotificationsComponent } from './components/notifications/notifications.component';
 
 @NgModule({
   declarations: [
@@ -35,7 +36,8 @@ import { NavbarComponent } from './components/navbar/navbar.component';
     PositionSimulatorComponent,
     TourExecutionComponent,
     ShoppingCartComponent,
-    NavbarComponent
+    NavbarComponent,
+    NotificationsComponent
   ],
   imports: [
     BrowserModule,
