@@ -13,7 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -28,6 +30,9 @@ public class PurchaseService {
 
     @Value("${tour.service.url}")
     private String tourServiceUrl;
+
+    @Value("${notifications.service.url:http://notifications-service:8087}")
+    private String notificationsServiceUrl;
 
 
     @Transactional
@@ -100,6 +105,8 @@ public class PurchaseService {
                 token.setTourName(item.getTourName());
                 tokens.add(toTokenResponse(tokenRepository.save(token)));
 
+sendNotification(touristId, "You purchased the tour: " + item.getTourName());
+
             } catch (ValidationException e) {
                 log.warn("SAGA rollback: Tour {} is no longer available. Skipping.", item.getTourId());
                 failedItems.add(item);
@@ -148,6 +155,17 @@ public class PurchaseService {
         } catch (Exception e) {
             log.error("Could not reach tour-service to validate tour {}: {}", tourId, e.getMessage());
             throw new ValidationException("Could not validate tour availability. Please try again.");
+        }
+    }
+
+    private void sendNotification(Long userId, String message) {
+        try {
+            Map<String, Object> body = new HashMap<>();
+            body.put("userId", userId);
+            body.put("message", message);
+            restTemplate.postForObject(notificationsServiceUrl + "/api/notifications", body, Object.class);
+        } catch (Exception e) {
+            log.warn("Could not send notification to user {}: {}", userId, e.getMessage());
         }
     }
 
