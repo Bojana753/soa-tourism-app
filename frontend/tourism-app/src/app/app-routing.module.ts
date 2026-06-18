@@ -13,6 +13,7 @@ import { ReviewComponent } from './components/review/review.component';
 import { PositionSimulatorComponent } from './components/position-simulator/position-simulator.component';
 import { TourExecutionComponent } from './components/tour-execution/tour-execution.component';
 import { ShoppingCartComponent } from './components/shopping-cart/shopping-cart.component';
+import { NotificationsComponent } from './components/notifications/notifications.component';
 
 const routes: Routes = [
   { path: '', component: HomeComponent },
@@ -28,6 +29,7 @@ const routes: Routes = [
   { path: 'position-simulator', component: PositionSimulatorComponent },
   { path: 'tour-execution/:id', component: TourExecutionComponent },
   { path: 'cart', component: ShoppingCartComponent },
+  { path: 'notifications', component: NotificationsComponent },
 ];
 
 @NgModule({
