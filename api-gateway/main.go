@@ -259,5 +259,6 @@ func main() {
 	r.PathPrefix("/api/purchase").HandlerFunc(proxyHandler("http://purchase-service:8085"))
 
 	fmt.Println("API Gateway started on :8080")
+	r.PathPrefix("/api/notifications").HandlerFunc(proxyHandler("http://notifications-service:8087"))
 	http.ListenAndServe(":8080", r)
 }

@@ -1,4 +1,8 @@
 services:
+  notifications-service:
+      build: ./notifications-service
+      ports:
+        - "8087:8087"
   stakeholders-service:
     build: ./stakeholders-service
     ports:
